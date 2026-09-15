@@ -20,6 +20,9 @@
   --r-sm: 4px; --r: 8px; --r-lg: 14px;
   --font-display: 'Frank Ruhl Libre', 'David Libre', 'Times New Roman', serif;
   --font-body: 'Rubik', 'Heebo', -apple-system, 'Segoe UI', Arial, sans-serif;
+  --font-hand: 'Playpen Sans Hebrew', 'Segoe Print', 'Comic Sans MS', cursive;
+  --font-cover: 'Bellefair', 'Frank Ruhl Libre', 'Times New Roman', serif;
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .07 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   --tab-h: 64px;
   color-scheme: light;
 }
@@ -48,7 +51,7 @@
 html { height: 100%; -webkit-text-size-adjust: 100%; }
 body {
   margin: 0; min-height: 100%;
-  background: var(--paper); color: var(--ink);
+  background: var(--grain), var(--paper); color: var(--ink);
   font-family: var(--font-body); font-size: 16px; line-height: 1.55;
   padding-bottom: calc(var(--tab-h) + env(safe-area-inset-bottom, 0px));
   -webkit-tap-highlight-color: transparent;
@@ -384,3 +387,79 @@ textarea.input { min-height: 110px; resize: vertical; line-height: 1.5; }
 .wall svg.thread-svg path.new { stroke-dasharray: 1200; stroke-dashoffset: 1200; animation: stitch 1.2s ease-out forwards; }
 @keyframes stitch { to { stroke-dashoffset: 0; } }
 @media (prefers-reduced-motion: reduce) { .wall svg.thread-svg path.new { animation: none; stroke-dashoffset: 0; } }
+
+
+/* ---------- visual upgrade: photos, handwriting, postcards ---------- */
+.hand { font-family: var(--font-hand); }
+.hero.photo { position: relative; border-radius: var(--r-lg); overflow: hidden; aspect-ratio: 4 / 3; margin-bottom: 20px; background: var(--paper-2); box-shadow: var(--shadow); }
+.hero.photo .hero-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.hero.photo::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to top, rgba(20,22,28,.82) 0%, rgba(20,22,28,.35) 45%, rgba(20,22,28,0) 75%); }
+.hero.photo .hero-text { position: absolute; inset-inline: 0; bottom: 0; padding: 16px 18px 18px; color: #F6F6F2; z-index: 1; }
+.hero.photo .hero-text .date, .hero.photo .hero-text .sub { color: rgba(246,246,242,.85); }
+.hero.photo .hero-text h1 { color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,.3); }
+.hero.photo .wing-tag { position: absolute; top: 12px; inset-inline-start: 12px; z-index: 1; background: var(--wing, var(--muted)); color: #fff; font-size: .75rem; font-weight: 500; padding: 4px 10px; border-radius: 99px; letter-spacing: .02em; }
+.hero.museum h1, .catalogue .cover h1, .onboard h1 { font-family: var(--font-cover); font-weight: 400; letter-spacing: .01em; }
+.hero.museum h1 { font-size: 2.4rem; }
+.onboard h1 { font-size: 2.5rem; line-height: 1.1; }
+.hero.locked .hero-img { filter: grayscale(1) contrast(.9); }
+
+/* photo strip on onboarding */
+.strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 22px; }
+.strip img { width: 100%; aspect-ratio: 3 / 4; object-fit: cover; border-radius: var(--r-sm); display: block; }
+.strip span { display: block; height: 4px; margin-top: 6px; border-radius: 2px; background: var(--wing, var(--line-2)); }
+
+/* stop sheet photo */
+.sheet-photo { margin: 6px 0 4px; border-radius: var(--r-lg); overflow: hidden; background: var(--paper-2); aspect-ratio: 16 / 10; box-shadow: var(--shadow); }
+.sheet-photo img { width: 100%; height: 100%; object-fit: cover; }
+.sheet-photo.locked img { filter: grayscale(1); opacity: .8; }
+.credit { color: var(--muted); font-size: .72rem; margin: 6px 2px 10px; }
+.credit a { color: inherit; }
+
+/* museum wall: hall thumbs, ghost frames, postcards */
+.hall-head { align-items: center; }
+.hall-head .hall-title { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.hall-head .thumb { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; border: 2px solid var(--card); box-shadow: var(--shadow); flex: none; }
+.hall.locked .thumb { filter: grayscale(1); }
+.frame { isolation: isolate; }
+.frame .ghost { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: grayscale(1); opacity: .32; z-index: -1; }
+.frame .fname { position: relative; z-index: 1; }
+.frame:not(.hung) .fname { background: color-mix(in srgb, var(--paper) 78%, transparent); padding: 3px 6px; border-radius: 3px; color: var(--ink-2); }
+.frame.hung { transform: rotate(var(--tilt, 0deg)); border-width: 6px; border-color: var(--card); background: var(--card); box-shadow: 0 1px 2px rgba(26,31,43,.12), 0 8px 20px rgba(26,31,43,.12); }
+.frame.hung:hover, .frame.hung:focus-visible { transform: rotate(0deg) scale(1.03); z-index: 2; }
+.frame.hung img { border-radius: 1px; }
+.frame.hung.words .ftext { font-family: var(--font-hand); font-weight: 600; font-size: .78rem; line-height: 1.3; -webkit-line-clamp: 5; }
+.frame.hung .fname { font-family: var(--font-body); }
+.wall svg.thread-svg path { stroke-width: 2.4; stroke-dasharray: 9 5; }
+@media (prefers-reduced-motion: no-preference) { .frame.hung { transition: transform .25s ease; } }
+
+/* handwriting for her own words */
+.label-card .ltitle, .label-card .lnote, .exhibit .media.text p, .catalogue .item .ltitle, .catalogue .item .media.text p, .letter .from-past .fp-text, .catalogue .notes p.hand { font-family: var(--font-hand); }
+.label-card .ltitle { font-weight: 600; font-size: 1.3rem; }
+.exhibit .media.text p { font-weight: 600; font-size: 1.3rem; line-height: 1.5; }
+.letter .ltext { font-family: var(--font-hand); font-size: 1.12rem; line-height: 1.6; }
+
+/* card of the day as a playing card */
+.daycard { border: 1px solid var(--line-2); box-shadow: 0 1px 2px rgba(26,31,43,.08), 0 10px 24px rgba(26,31,43,.08); }
+.daycard::before { width: 8px; background: repeating-linear-gradient(to bottom, var(--thread) 0 14px, transparent 14px 20px); }
+.daycard::after { content: "♦"; position: absolute; top: 10px; inset-inline-end: 14px; color: var(--thread); font-size: 1rem; opacity: .9; }
+.daycard.undrawn::after { display: none; }
+.daycard.flip { animation: flip .7s cubic-bezier(.2,.8,.2,1); transform-origin: 50% 50%; }
+@keyframes flip { 0% { transform: perspective(600px) rotateY(-90deg); opacity: 0; } 60% { opacity: 1; } 100% { transform: perspective(600px) rotateY(0); } }
+@media (prefers-reduced-motion: reduce) { .daycard.flip { animation: none; } }
+
+/* envelopes: airmail edge and wax */
+.env.ready, .letter { border-top: 4px solid; border-image: repeating-linear-gradient(90deg, #B7272D 0 14px, #F6F6F2 14px 22px, #2B4C9B 22px 36px, #F6F6F2 36px 44px) 4; }
+.env .seal { box-shadow: inset 0 0 0 4px rgba(255,255,255,.18), 0 2px 4px rgba(0,0,0,.18); }
+.env.ready .seal { box-shadow: inset 0 0 0 4px rgba(255,255,255,.2), 0 0 0 6px var(--thread-soft), 0 3px 6px rgba(0,0,0,.2); }
+.env.sealed { background: repeating-linear-gradient(135deg, transparent 0 9px, rgba(26,31,43,.025) 9px 10px), var(--card); }
+
+/* catalogue cover mosaic + credits */
+.catalogue .cover .mosaic { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 22px; }
+.catalogue .cover .mosaic img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: var(--r-sm); border: 4px solid var(--paper-2); }
+.catalogue .cover .mosaic img:nth-child(odd) { transform: rotate(-1.5deg); }
+.catalogue .cover .mosaic img:nth-child(even) { transform: rotate(1.2deg); }
+.catalogue .plan .wing img { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; margin-inline-end: 8px; vertical-align: middle; }
+.credits-list { display: grid; gap: 8px; }
+.credits-list .row { padding: 8px 0; border-bottom: 1px solid var(--line); font-size: .8125rem; color: var(--muted); }
+.credits-list .row strong { color: var(--ink-2); font-weight: 500; }
+.credits-list img { width: 40px; height: 40px; object-fit: cover; border-radius: var(--r-sm); flex: none; }

@@ -61,6 +61,15 @@
   };
   const ico = (n) => ICONS[n] || '';
 
+  // ---------- photos (Wikimedia Commons, see js/credits.js) ----------
+  const CREDITS = window.OTZ_CREDITS || [];
+  const IMG_IDS = new Set(CREDITS.map((c) => c.id));
+  const imgFor = (id) => IMG_IDS.has(id) ? `img/${id}.jpg` : null;
+  const creditFor = (id) => CREDITS.find((c) => c.id === id);
+  const creditLine = (id) => { const c = creditFor(id); return c ? `<p class="credit">תצלום: ${esc(c.artist || 'ויקישיתוף')} · <a href="${esc(c.page)}" target="_blank" rel="noopener">${esc(c.license)}</a></p>` : ''; };
+  const tilts = [-2.2, 1.6, -1.1, 2.4, -1.8, 1.2, -2.6, 1.9];
+  let justDrew = false;
+
   // ---------- toast ----------
   let toastTimer = null;
   function toast(html, ms) {
@@ -115,6 +124,7 @@
     else if (head === 'thread') { setTab('museum'); renderThread(); }
     else if (head === 'catalogue') { setTab('catalogue'); renderCatalogue(); }
     else if (head === 'settings') { setTab(''); renderSettings(); }
+    else if (head === 'credits') { setTab(''); renderCredits(); }
     else { setTab('today'); renderToday(); }
     view.scrollTop = 0; window.scrollTo(0, 0);
   }
@@ -129,6 +139,7 @@
     let emblem = EMBLEMS[0];
     view.innerHTML = `
       <section class="onboard stack-lg">
+        ${['d17', 'd21', 'd23', 'd26'].some((h) => imgFor('hall-' + h)) ? `<div class="strip">${[['d17', 'paris'], ['d21', 'london'], ['d23', 'disney'], ['d26', 'south']].map(([h, w]) => imgFor('hall-' + h) ? `<div data-wing="${w}"><img src="${imgFor('hall-' + h)}" alt=""><span></span></div>` : '').join('')}</div>` : ''}
         <div>
           <p class="eyebrow">${esc(C.trip.title)} · ${esc(C.trip.datesLabel)}</p>
           <h1>לפני שהיו מוזיאונים, היו חדרי פלאות.</h1>
@@ -179,14 +190,17 @@
 
     view.innerHTML = `
       ${bannerHtml()}
-      <section class="hero" data-wing="${esc(hall.wing)}">
-        <p class="date">${esc(L.hebrewDate(now()))}${hall.date !== dk ? ` · אולם ${esc(hall.label || L.shortDate(hall.date))}` : ''}</p>
-        <h1>${esc(hall.title)}</h1>
-        ${hall.sub ? `<p class="sub">${esc(hall.sub)}</p>` : ''}
+      <section class="hero ${imgFor('hall-' + hall.id) ? 'photo' : ''}" data-wing="${esc(hall.wing)}">
+        ${imgFor('hall-' + hall.id) ? `<img class="hero-img" src="${imgFor('hall-' + hall.id)}" alt=""><span class="wing-tag">${esc(wingName(hall.wing))}</span>` : ''}
+        <div class="hero-text">
+          <p class="date">${esc(L.hebrewDate(now()))}${hall.date !== dk ? ` · אולם ${esc(hall.label || L.shortDate(hall.date))}` : ''}</p>
+          <h1>${esc(hall.title)}</h1>
+          ${hall.sub ? `<p class="sub">${esc(hall.sub)}</p>` : ''}
+        </div>
       </section>
       ${beforeTrip ? `<div class="banner">הטיול מתחיל ב־${esc(L.shortDate(C.trip.start))}. עד אז אפשר להסתכל במוזיאון הריק, לפתוח את ההגדרות, ולתת שם. האולמות נפתחים לפי הימים.</div>` : ''}
       ${afterTrip ? `<div class="banner">הטיול נגמר, המוזיאון פתוח לתמיד. הזמן <a href="#/catalogue">לכרוך את הקטלוג</a>.</div>` : ''}
-      <section class="daycard ${card ? '' : 'undrawn'}" id="daycard">
+      <section class="daycard ${card ? '' : 'undrawn'} ${justDrew ? 'flip' : ''}" id="daycard">
         <p class="eyebrow">קלף היום</p>
         ${card ? `<p class="text">${esc(card.text)}</p>
           <div class="actions">${cardState.redrawn ? `<span class="hint">זה הקלף. מחר יש חדש.</span>` : `<button class="btn ghost" id="redraw">להחליף פעם אחת</button>`}</div>`
@@ -213,13 +227,13 @@
       const drawn = Object.values(p.cards).map((c) => c.cardId);
       const c = L.pickCard(C.cards, drawn);
       if (!c) return;
-      p.cards[dk] = { cardId: c.id, redrawn: false }; save(); render();
+      p.cards[dk] = { cardId: c.id, redrawn: false }; save(); justDrew = true; render(); justDrew = false;
     });
     const redraw = view.querySelector('#redraw');
     if (redraw) redraw.addEventListener('click', () => {
       const drawn = Object.values(p.cards).map((c) => c.cardId);
       const c = L.pickCard(C.cards, drawn);
-      p.cards[dk] = { cardId: c.id, redrawn: true }; save(); render();
+      p.cards[dk] = { cardId: c.id, redrawn: true }; save(); justDrew = true; render(); justDrew = false;
     });
   }
 
@@ -239,7 +253,7 @@
     const count = exhibitsCount();
     view.innerHTML = `
       ${bannerHtml()}
-      <section class="hero">
+      <section class="hero museum">
         <p class="date">${esc(C.trip.datesLabel)}</p>
         <h1>המוזיאון של ${esc(p.name)}</h1>
         <p class="sub">${count === 0 ? 'הקירות עדיין ריקים. כל מוצג שתתלי יתחבר לקודמו בחוט אדום.' : count === 1 ? 'מוצג אחד על הקיר. החוט מתחיל.' : `${count} מוצגים על הקירות.`}</p>
@@ -262,23 +276,25 @@
     const done = stops.filter((s) => P().exhibits[s.id]).length;
     return `<section class="hall ${st}" data-wing="${esc(h.wing)}">
       <div class="hall-head wing-band">
-        <h2>${esc(h.title)}</h2>
+        <div class="hall-title">${imgFor('hall-' + h.id) ? `<img class="thumb" src="${imgFor('hall-' + h.id)}" alt="">` : ''}<h2>${esc(h.title)}</h2></div>
         <span class="meta">${esc(h.label || L.shortDate(h.date))} · ${esc(wingName(h.wing))}${done ? ` · ${done}/${stops.length}` : ''}</span>
       </div>
       ${st === 'locked' ? `<div class="lock">${ico('lock')}<span>נפתח ב${esc(L.hebrewDate(h.date))}. ${esc(h.tease || '')}</span></div>` :
-        `<div class="frames">${stops.map((s) => frame(s)).join('')}</div>`}
+        `<div class="frames">${stops.map((s, i) => frame(s, i)).join('')}</div>`}
     </section>`;
   }
 
-  function frame(s) {
+  function frame(s, i) {
     const ex = P().exhibits[s.id];
-    if (!ex) return `<a class="frame" href="#/stop/${esc(s.id)}"><span class="fname">${esc(s.name)}</span></a>`;
+    const ghost = imgFor(s.id) ? `<img class="ghost" src="${imgFor(s.id)}" alt="" loading="lazy">` : '';
+    if (!ex) return `<a class="frame" href="#/stop/${esc(s.id)}">${ghost}<span class="fname">${esc(s.name)}</span></a>`;
+    const tilt = `style="--tilt:${tilts[(i || 0) % tilts.length]}deg"`;
     let inner = '';
     if (ex.type === 'photo' || ex.type === 'sketch') inner = `<img alt="" data-media="${esc(s.id)}"><span class="fname">${esc(ex.title || s.name)}</span>`;
     else if (ex.type === 'color') inner = `<span class="swatch" style="background:${esc(ex.color)}"></span><span class="fname">${esc(ex.colorName || ex.title || s.name)}</span>`;
     else if (ex.type === 'find') inner = `<span class="ftext">✓</span><span class="fname">${esc(ex.title || s.name)}</span>`;
     else inner = `<span class="ftext">${esc((ex.text || ex.title || '').slice(0, 80))}</span>`;
-    return `<a class="frame hung ${esc(ex.type)}" href="#/stop/${esc(s.id)}" data-stop="${esc(s.id)}"><span class="pin"></span>${inner}</a>`;
+    return `<a class="frame hung ${esc(ex.type)}" href="#/stop/${esc(s.id)}" data-stop="${esc(s.id)}" ${tilt}><span class="pin"></span>${inner}</a>`;
   }
 
   async function fillThumbs() {
@@ -320,6 +336,7 @@
     const littleDone = !!(P().little && P().little[s.id]);
     const head = `
       ${backLink(query && query.from === 'museum' ? '#/museum' : '#/', 'חזרה')}
+      ${imgFor(s.id) ? `<figure class="sheet-photo ${st === 'locked' ? 'locked' : ''}"><img src="${imgFor(s.id)}" alt="${esc(s.name)}"></figure>${creditLine(s.id)}` : ''}
       <header class="sheet-head wing-band" data-wing="${esc(wing)}">
         <p class="eyebrow"><span class="wing-dot"></span>${esc(hall.title)} · ${esc(L.hebrewDate(hall.date))}${s.time ? ` · <span class="latin">${esc(s.time)}</span>` : s.when ? ` · ${esc(s.when)}` : ''}</p>
         <h1>${esc(s.name)}</h1>
@@ -632,6 +649,7 @@
       </div>` : ''}
       <section class="catalogue" id="catalogue">
         <div class="page cover">
+          <div class="mosaic" id="mosaic">${mosaicImgs(order, p)}</div>
           <div class="em">${esc(p.emblem)}</div>
           <p class="eyebrow">קטלוג התערוכה</p>
           <h1>המוזיאון של ${esc(p.name)}</h1>
@@ -644,7 +662,8 @@
           <div class="plan">${C.wings.map((w) => {
             const hs = halls.filter((h) => h.wing === w.id);
             const cnt = hs.reduce((a, h) => a + stopsOfHall(h.id).filter((s) => p.exhibits[s.id]).length, 0);
-            return `<div class="wing" data-wing="${esc(w.id)}"><span><span class="wing-dot"></span><strong>${esc(w.name)}</strong><br><span class="halls">${hs.map((h) => esc(h.title)).join(' · ')}</span></span><span class="num">${cnt}</span></div>`;
+            const hi = hs.map((h) => imgFor('hall-' + h.id)).find(Boolean);
+            return `<div class="wing" data-wing="${esc(w.id)}"><span>${hi ? `<img src="${hi}" alt="">` : '<span class="wing-dot"></span>'}<strong>${esc(w.name)}</strong><br><span class="halls">${hs.map((h) => esc(h.title)).join(' · ')}</span></span><span class="num">${cnt}</span></div>`;
           }).join('')}</div>
         </div>
         ${order.length ? `<div class="page">
@@ -667,7 +686,7 @@
         </div>` : ''}
         ${notes.length ? `<div class="page">
           <h2>מהמעטפות</h2>
-          ${notes.map((e) => `<article class="item"><p class="no">${esc(e.title)} · ${esc(L.hebrewDate(e.openAt))}</p><p class="ltitle" style="font-weight:700">${esc(e.prompt.label)}</p><p style="white-space:pre-wrap">${esc(p.notes[e.prompt.key])}</p></article>`).join('')}
+          ${notes.map((e) => `<article class="item"><p class="no">${esc(e.title)} · ${esc(L.hebrewDate(e.openAt))}</p><p class="ltitle" style="font-weight:700">${esc(e.prompt.label)}</p><p class="hand" style="white-space:pre-wrap;font-size:1.15rem">${esc(p.notes[e.prompt.key])}</p></article>`).join('')}
         </div>` : ''}
         ${n > 0 ? `<div class="page">
           <h2>החוט האדום</h2>
@@ -688,6 +707,19 @@
       p.boundAt = now().toISOString(); save(); render();
       setTimeout(() => toast(`נכרך. <a href="#/thread">הקטע האחרון של החוט פתוח</a>.`, 5000), 300);
     });
+  }
+
+  function mosaicImgs(order, p) {
+    const own = order.filter((id) => p.exhibits[id].hasImage).slice(0, 4).map((id) => `<img alt="" data-media="${esc(id)}">`);
+    const halls = ['d17', 'd21', 'd23', 'd26'].map((h) => imgFor('hall-' + h)).filter(Boolean).map((src) => `<img alt="" src="${src}">`);
+    return own.concat(halls).slice(0, 4).join('');
+  }
+
+  function renderCredits() {
+    view.innerHTML = `
+      ${backLink('#/settings', 'הגדרות')}
+      <section class="hero"><p class="date">${CREDITS.length} תצלומים</p><h1>תצלומים ורשיונות</h1><p class="sub">התמונות של המקומות באפליקציה מגיעות מוויקישיתוף, ברשיונות חופשיים. התמונות שלך נשארות שלך.</p></section>
+      <div class="credits-list">${CREDITS.map((c) => `<div class="row" style="display:flex;gap:10px;align-items:center"><img src="img/${esc(c.id)}.jpg" alt="" loading="lazy"><span><strong>${esc(c.title)}</strong><br>${esc(c.artist || 'ויקישיתוף')} · <a href="${esc(c.page)}" target="_blank" rel="noopener">${esc(c.license)}</a></span></div>`).join('')}</div>`;
   }
 
   async function exportBackup() {
@@ -752,7 +784,7 @@
             <button class="btn ghost danger" id="reset">למחוק את המוזיאון הזה</button>
           </div>
         </section>
-        <p class="hint">אוצרת ${esc(VERSION)} · הכל נשמר בטלפון בלבד, בלי שרת.</p>
+        <p class="hint">אוצרת ${esc(VERSION)} · הכל נשמר בטלפון בלבד, בלי שרת. <a href="#/credits">תצלומים ורשיונות</a></p>
       </div>`;
     let emblem = p.emblem;
     view.querySelector('#sEmblems').addEventListener('click', (e) => { const b = e.target.closest('button'); if (!b) return; emblem = b.dataset.e; view.querySelectorAll('#sEmblems button').forEach((x) => x.setAttribute('aria-pressed', x === b)); });

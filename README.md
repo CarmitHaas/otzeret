@@ -61,6 +61,12 @@ Halls open at local midnight of their `date`. A hall can span several days (`lab
 
 **After changing any file, bump `VERSION` in `sw.js`** so installed phones pick up the new content on their next launch.
 
+## Photos and credits
+
+Each hall and most stops have a photograph in `img/<id>.jpg`, fetched from Wikipedia lead images on Wikimedia Commons (free licenses only) by `tools/fetch_images.py`, which also writes `js/credits.js` and `CREDITS.md`. The app shows the credit under each stop photo and lists everything under Settings → *תצלומים ורשיונות*.
+
+To use your own picture for a stop, overwrite `img/<stop id>.jpg` (960 px wide is plenty) and keep or edit its entry in `js/credits.js`. To add a photo for a stop that has none, add an entry to `js/credits.js`; the app only shows images listed there. Re-run the script for a single id with `python3 tools/fetch_images.py <id>`.
+
 ## Architecture
 
 - `index.html`, `css/app.css`, `css/print.css`: shell, tokens, components, catalogue print layout.
@@ -68,7 +74,7 @@ Halls open at local midnight of their `date`. A hall can span several days (`lab
 - `js/store.js`: profiles and state in `localStorage`, photos and sketches in IndexedDB, export/import, image compression.
 - `js/sketch.js`: finger sketch pad with a blind-contour mode.
 - `js/app.js`: hash routing, views, mission flows, red thread stitching, envelopes, catalogue, settings.
-- `sw.js`, `manifest.webmanifest`, `icons/`: installable, offline. Core files are network-first with a 3 s timeout and cache fallback; icons cache-first.
+- `sw.js`, `manifest.webmanifest`, `icons/`: installable, offline. Core files are network-first with a 3 s timeout and cache fallback; icons and photos cache-first and precached on install (about 6 MB once, on wifi).
 
 Design notes are in `docs/superpowers/specs/`. Facts in the content were checked in September 2026 against official sources where possible; a few remain marked in the research notes as unverified.
 

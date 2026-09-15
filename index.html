@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>אוצרת</title>
+  <meta name="description" content="המוזיאון האישי שלך לטיול: פריז, לונדון, דיסני ולה סיוטה, 16–29 בספטמבר 2026">
+  <meta name="theme-color" content="#F2F3EF" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#1B1D22" media="(prefers-color-scheme: dark)">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="אוצרת">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;500;700;900&family=Rubik:wght@400;500;700&display=swap">
+  <link rel="stylesheet" href="css/app.css">
+  <link rel="stylesheet" href="css/print.css" media="print">
+</head>
+<body>
+  <a class="skip" href="#view">לתוכן</a>
+  <header class="topbar" id="topbar">
+    <a class="brand" href="#/" id="brand">אוצרת</a>
+    <a class="iconbtn" href="#/settings" aria-label="הגדרות" id="settingsBtn"></a>
+  </header>
+  <main id="view" class="view" tabindex="-1" aria-live="polite"></main>
+  <nav class="tabs" id="tabs" aria-label="ניווט">
+    <a href="#/" data-tab="today"><span class="tab-ico" data-ico="today"></span><span>היום</span></a>
+    <a href="#/museum" data-tab="museum"><span class="tab-ico" data-ico="museum"></span><span>המוזיאון</span></a>
+    <a href="#/envelopes" data-tab="envelopes"><span class="tab-ico" data-ico="envelope"></span><span>מעטפות</span></a>
+    <a href="#/catalogue" data-tab="catalogue"><span class="tab-ico" data-ico="book"></span><span>הקטלוג</span></a>
+  </nav>
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+  <noscript><p class="noscript">האפליקציה צריכה JavaScript כדי לעבוד.</p></noscript>
+  <script src="js/logic.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/content.js"></script>
+  <script src="js/content-paris.js"></script>
+  <script src="js/content-london.js"></script>
+  <script src="js/content-south.js"></script>
+  <script src="js/sketch.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

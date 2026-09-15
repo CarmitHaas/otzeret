@@ -1,0 +1,15 @@
+/* אוצרת — catalogue print layout */
+@page { size: A4; margin: 16mm 14mm; }
+html, body { background: #fff !important; color: #111 !important; }
+.topbar, .tabs, .toast, .no-print, .banner, .bind-cta, .skip { display: none !important; }
+body { padding: 0 !important; font-size: 12pt; }
+.view { max-width: none; padding: 0; }
+.catalogue .page { border: 0; box-shadow: none; padding: 0; margin: 0; break-after: page; page-break-after: always; background: #fff; }
+.catalogue .page:last-child { break-after: auto; page-break-after: auto; }
+.catalogue .cover { min-height: 60vh; display: flex; flex-direction: column; justify-content: center; }
+.catalogue .item { break-inside: avoid; page-break-inside: avoid; padding: 14px 0; border-bottom: 1px solid #ddd; }
+.catalogue .item .media img { max-height: 110mm; border-color: #eee; }
+.catalogue .item .media .swatch { height: 40mm; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.chip .c, .swatch, .wing-dot, .bound-stamp { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.fragment::before, .threadline::before { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+a { text-decoration: none; color: inherit; }

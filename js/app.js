@@ -70,10 +70,17 @@
   const tilts = [-2.2, 1.6, -1.1, 2.4, -1.8, 1.2, -2.6, 1.9];
   let justDrew = false;
 
+  // ---------- voice (את / אתה) ----------
+  const voice = () => (P() && P().voice) || 'f';
+  const V = (t) => (t == null ? t : window.OTZ_VOICE.apply(String(t), voice()));
+  const vs = (st) => Object.assign({}, st, { hook: V(st.hook), secret: V(st.secret), ask: V(st.ask), little: V(st.little) });
+  const vm = (m) => Object.assign({}, m, { title: V(m.title), prompt: V(m.prompt), placeholder: V(m.placeholder), noteLabel: V(m.noteLabel), notePlaceholder: V(m.notePlaceholder), namePlaceholder: V(m.namePlaceholder), defaultTitle: V(m.defaultTitle), items: (m.items || []).map(V) });
+  const ve = (e) => Object.assign({}, e, { body: V(e.body), revealLabel: V(e.revealLabel), prompt: e.prompt ? Object.assign({}, e.prompt, { label: V(e.prompt.label), placeholder: V(e.prompt.placeholder), hint: V(e.prompt.hint) }) : null });
+
   // ---------- toast ----------
   let toastTimer = null;
   function toast(html, ms) {
-    toastEl.innerHTML = html; toastEl.hidden = false;
+    toastEl.innerHTML = V(html); toastEl.hidden = false;
     clearTimeout(toastTimer);
     toastTimer = setTimeout(() => { toastEl.hidden = true; }, ms || 3600);
   }
@@ -130,41 +137,51 @@
   }
   window.addEventListener('hashchange', render);
 
-  const bannerHtml = () => (showBanner || !S.storageOk) ? `<div class="banner">הדפדפן לא מאפשר לשמור פה. המוזיאון יעבוד, אבל לא יישמר אחרי סגירה. נסי לפתוח לא בחלון פרטי.</div>` : '';
+  const bannerHtml = () => (showBanner || !S.storageOk) ? `<div class="banner">${V('הדפדפן לא מאפשר לשמור פה. המוזיאון יעבוד, אבל לא יישמר אחרי סגירה. נסי לפתוח לא בחלון פרטי.')}</div>` : '';
   const backLink = (href, text) => `<a class="back" href="${href}">${ico('back')}<span>${esc(text)}</span></a>`;
 
   // ---------- onboarding ----------
   const EMBLEMS = ['🖼️', '🗝️', '🔭', '🧭', '🪞', '🕯️', '🎭', '🐚', '🪶', '🧵'];
-  function renderOnboarding() {
-    let emblem = EMBLEMS[0];
+  function renderOnboarding(st0) {
+    const st = st0 || { name: '', emblem: EMBLEMS[0], voice: 'f' };
+    const T = (t) => window.OTZ_VOICE.apply(t, st.voice);
+    const strip = ['d17', 'd21', 'd23', 'd26'].some((h) => imgFor('hall-' + h)) ? `<div class="strip">${[['d17', 'paris'], ['d21', 'london'], ['d23', 'disney'], ['d26', 'south']].map(([h, w]) => imgFor('hall-' + h) ? `<div data-wing="${w}"><img src="${imgFor('hall-' + h)}" alt=""><span></span></div>` : '').join('')}</div>` : '';
     view.innerHTML = `
       <section class="onboard stack-lg">
-        ${['d17', 'd21', 'd23', 'd26'].some((h) => imgFor('hall-' + h)) ? `<div class="strip">${[['d17', 'paris'], ['d21', 'london'], ['d23', 'disney'], ['d26', 'south']].map(([h, w]) => imgFor('hall-' + h) ? `<div data-wing="${w}"><img src="${imgFor('hall-' + h)}" alt=""><span></span></div>` : '').join('')}</div>` : ''}
+        ${strip}
         <div>
           <p class="eyebrow">${esc(C.trip.title)} · ${esc(C.trip.datesLabel)}</p>
           <h1>לפני שהיו מוזיאונים, היו חדרי פלאות.</h1>
-          <p class="lede">אנשים אספו בחדר אחד את מה שהפליא אותם: קונכייה, מפה, אבן, ציור קטן. הלובר התחיל כאוסף של מלך. המוזיאון הבריטי התחיל כ־71,000 חפצים של רופא אחד.<br>בטיול הזה את האוצרת. כל מקום שנעצור בו יכול להפוך למוצג במוזיאון שלך, אם תסתכלי עליו באמת ותעשי ממנו משהו קטן. בסוף מדפיסים קטלוג.</p>
+          <p class="lede">${T('אנשים אספו בחדר אחד את מה שהפליא אותם: קונכייה, מפה, אבן, ציור קטן. הלובר התחיל כאוסף של מלך. המוזיאון הבריטי התחיל כ־71,000 חפצים של רופא אחד.')}<br>${T('בטיול הזה את האוצרת. כל מקום שנעצור בו יכול להפוך למוצג במוזיאון שלך, אם תסתכלי עליו באמת ותעשי ממנו משהו קטן. בסוף מדפיסים קטלוג.')}</p>
         </div>
         <div class="field">
-          <label for="obName">איך קוראים לאוצרת?</label>
-          <input class="input" id="obName" maxlength="24" autocomplete="off" placeholder="השם שלך">
+          <label>איך לפנות אליך?</label>
+          <div class="row voice-toggle" id="obVoice"><button type="button" class="btn secondary" data-v="f" aria-pressed="${st.voice === 'f'}">את</button><button type="button" class="btn secondary" data-v="m" aria-pressed="${st.voice === 'm'}">אתה</button></div>
+        </div>
+        <div class="field">
+          <label for="obName">${T('איך קוראים לאוצרת?')}</label>
+          <input class="input" id="obName" maxlength="24" autocomplete="off" placeholder="השם שלך" value="${esc(st.name)}">
         </div>
         <div class="field">
           <label>סמל למוזיאון</label>
-          <div class="emblems" id="obEmblems">${EMBLEMS.map((e, i) => `<button type="button" data-e="${e}" aria-pressed="${i === 0}">${e}</button>`).join('')}</div>
+          <div class="emblems" id="obEmblems">${EMBLEMS.map((e) => `<button type="button" data-e="${e}" aria-pressed="${e === st.emblem}">${e}</button>`).join('')}</div>
         </div>
         <button class="btn thread block" id="obGo">לפתוח את המוזיאון</button>
-        <p class="hint">הכל נשמר רק בטלפון הזה. אין ניקוד, אין תחרות. שלושה מוזיאונים במשפחה יהיו שונים לגמרי, וזה הרעיון.</p>
+        <p class="hint">הכל נשמר רק בטלפון הזה. אין ניקוד, אין תחרות. כמה מוזיאונים במשפחה יהיו שונים לגמרי, וזה הרעיון.</p>
       </section>`;
+    view.querySelector('#obVoice').addEventListener('click', (e) => {
+      const b = e.target.closest('button'); if (!b) return;
+      st.voice = b.dataset.v; st.name = view.querySelector('#obName').value; renderOnboarding(st);
+    });
     view.querySelector('#obEmblems').addEventListener('click', (e) => {
       const b = e.target.closest('button'); if (!b) return;
-      emblem = b.dataset.e;
+      st.emblem = b.dataset.e;
       view.querySelectorAll('#obEmblems button').forEach((x) => x.setAttribute('aria-pressed', x === b));
     });
     view.querySelector('#obGo').addEventListener('click', () => {
       const name = view.querySelector('#obName').value.trim();
       if (!name) { view.querySelector('#obName').focus(); toast('רק השם, ואנחנו בפנים.'); return; }
-      const prof = S.newProfile(name, emblem);
+      const prof = S.newProfile(name, st.emblem); prof.voice = st.voice;
       state.profiles[prof.id] = prof; state.activeProfile = prof.id; save();
       go('#/'); render();
     });
@@ -185,6 +202,9 @@
       .sort((a, b) => (a.e.openAt < b.e.openAt ? -1 : 1))[0];
     const tc = threadCount();
     const seenThread = p.seenThread || 0;
+    const doneToday = Object.values(p.exhibits).filter((e) => e.doneAt && L.dayKey(new Date(e.doneAt)) === dk).length;
+    const backedUpToday = !!(p.lastBackupAt && L.dayKey(new Date(p.lastBackupAt)) === dk);
+    const nudge = now().getHours() >= 19 && doneToday > 0 && !backedUpToday;
     const beforeTrip = dk < C.trip.start;
     const afterTrip = dk > C.trip.end;
 
@@ -202,11 +222,12 @@
       ${afterTrip ? `<div class="banner">הטיול נגמר, המוזיאון פתוח לתמיד. הזמן <a href="#/catalogue">לכרוך את הקטלוג</a>.</div>` : ''}
       <section class="daycard ${card ? '' : 'undrawn'} ${justDrew ? 'flip' : ''}" id="daycard">
         <p class="eyebrow">קלף היום</p>
-        ${card ? `<p class="text">${esc(card.text)}</p>
+        ${card ? `<p class="text">${esc(V(card.text))}</p>
           <div class="actions">${cardState.redrawn ? `<span class="hint">זה הקלף. מחר יש חדש.</span>` : `<button class="btn ghost" id="redraw">להחליף פעם אחת</button>`}</div>`
         : `<p class="text muted">מגבלה יצירתית אחת לכל היום. שולפים קלף בבוקר, והעין מתחילה לחפש.</p>
           <div class="actions"><button class="btn secondary" id="draw">לשלוף קלף</button></div>`}
       </section>
+      ${nudge ? `<section class="nudge" id="nudge"><p><strong>לשמור את היום?</strong><br><span class="small">${doneToday === 1 ? 'מוצג חדש אחד' : doneToday + ' מוצגים חדשים'} על הקיר. קובץ גיבוי אחד לדרייב, לוואטסאפ או לתיקיית הקבצים, וזה שמור גם אם הטלפון נעלם.</span></p><button class="btn secondary" id="nudgeShare">${ico('download')} לשמור / לשתף</button></section>` : ''}
       <div class="section-title"><h2>הכרטיסים של היום</h2></div>
       ${stops.length ? `<div class="stoplist">${stops.map((s) => stopItem(s)).join('')}</div>` : `<div class="empty">אין תחנות רשומות ליום הזה.</div>`}
       ${nextEnv ? `<div class="section-title"><h2>מעטפות</h2></div>
@@ -222,6 +243,8 @@
           <span class="arrow">${ico('back')}</span>
         </a>` : ''}`;
 
+    const nb = view.querySelector('#nudgeShare');
+    if (nb) nb.addEventListener('click', exportBackup);
     const drawBtn = view.querySelector('#draw');
     if (drawBtn) drawBtn.addEventListener('click', () => {
       const drawn = Object.values(p.cards).map((c) => c.cardId);
@@ -327,8 +350,9 @@
 
   // ---------- stop sheet ----------
   function renderStop(sid, query) {
-    const s = stopById(sid);
-    if (!s) { view.innerHTML = `<div class="empty">אין תחנה כזאת.</div>`; return; }
+    const s0 = stopById(sid);
+    if (!s0) { view.innerHTML = `<div class="empty">אין תחנה כזאת.</div>`; return; }
+    const s = vs(s0);
     const hall = hallById(s.hall);
     const st = L.hallStatus(hall, now(), settings());
     const ex = P().exhibits[s.id];
@@ -352,8 +376,8 @@
     if (!ex) {
       view.innerHTML = `${head}
         <div class="section-title"><h2>לתלות מוצג</h2></div>
-        <p class="small muted">בוחרת אחת. אין נכון ולא נכון, יש מה שמתאים לך עכשיו.</p>
-        <div class="choices">${(s.missions || []).map((m) => `
+        <p class="small muted">${V('בוחרת אחת. אין נכון ולא נכון, יש מה שמתאים לך עכשיו.')}</p>
+        <div class="choices">${(s.missions || []).map(vm).map((m) => `
           <button class="choice" data-m="${esc(m.id)}">
             <span class="glyph">${ico(m.type)}</span>
             <span><span class="ctitle">${esc(m.title)}</span><span class="cprompt">${esc(m.prompt)}</span></span>
@@ -407,7 +431,7 @@
   function littleBlock(s, done) {
     if (!s.little) return '';
     return `<div class="little ${done ? 'done' : ''}" id="little">
-      <span><span class="l-title">${ico('little')} להיות המדריכה של הקטן</span><br><span class="small">${esc(s.little)}</span></span>
+      <span><span class="l-title">${ico('little')} ${V('להיות המדריכה של הקטן')}</span><br><span class="small">${esc(s.little)}</span></span>
       <button class="btn secondary" id="littleBtn">${done ? 'עשינו ✓' : 'עשינו'}</button>
     </div>`;
   }
@@ -429,8 +453,9 @@
 
   // ---------- mission panel ----------
   function renderMission(sid, mid) {
-    const s = stopById(sid); if (!s) return renderStop(sid);
-    const m = (s.missions || []).find((x) => x.id === mid); if (!m) return renderStop(sid);
+    const s0 = stopById(sid); if (!s0) return renderStop(sid);
+    const m0 = (s0.missions || []).find((x) => x.id === mid); if (!m0) return renderStop(sid);
+    const s = vs(s0); const m = vm(m0);
     if (P().exhibits[s.id]) return renderStop(sid);
     const wing = wingOf(s);
     let pendingImage = null; let pad = null;
@@ -493,7 +518,7 @@
       view.querySelector('#clear').addEventListener('click', () => pad.clear());
       const blind = view.querySelector('#blind'); if (blind) blind.addEventListener('change', () => pad.setBlind(blind.checked));
     } else if (m.type === 'words') {
-      body.innerHTML = `<div class="field"><textarea class="input" id="words" maxlength="600" placeholder="${esc(m.placeholder || 'כותבת פה')}"></textarea><div class="count" id="wc"></div></div>`;
+      body.innerHTML = `<div class="field"><textarea class="input" id="words" maxlength="600" placeholder="${esc(m.placeholder || V('כותבת פה'))}"></textarea><div class="count" id="wc"></div></div>`;
       const ta = view.querySelector('#words'); const wc = view.querySelector('#wc');
       const upd = () => { const words = ta.value.trim().split(/\s+/).filter(Boolean).length; wc.textContent = m.wordLimit ? `${words} / ${m.wordLimit} מילים` : `${words} מילים`; };
       ta.addEventListener('input', upd); upd();
@@ -502,7 +527,7 @@
       body.innerHTML = `
         <div class="color-pick">
           <input type="color" id="colorIn" value="${esc(presets[0])}" aria-label="בחירת צבע">
-          <div class="field"><label for="colorName">איך את קוראת לצבע הזה?</label><input class="input" id="colorName" maxlength="40" placeholder="${esc(m.namePlaceholder || 'למשל: כחול של שלט רחוב אחרי גשם')}"></div>
+          <div class="field"><label for="colorName">${V('איך את קוראת לצבע הזה?')}</label><input class="input" id="colorName" maxlength="40" placeholder="${esc(m.namePlaceholder || 'למשל: כחול של שלט רחוב אחרי גשם')}"></div>
         </div>
         <div class="swatches">${presets.map((c) => `<button type="button" data-c="${c}" style="background:${c}" aria-label="${c}"></button>`).join('')}</div>
         <p class="hint">אפשר לכוון בגלגל הצבעים עד שזה בדיוק הצבע שראית. השם חשוב יותר מהדיוק.</p>`;
@@ -568,8 +593,9 @@
 
   function renderEnvelope(eid) {
     const p = P();
-    const e = C.envelopes.find((x) => x.id === eid);
-    if (!e) return renderEnvelopes();
+    const e0 = C.envelopes.find((x) => x.id === eid);
+    if (!e0) return renderEnvelopes();
+    const e = ve(e0);
     const st = L.envelopeStatus(e, now(), p.envelopes, settings());
     if (st === 'sealed') { go('#/envelopes'); return; }
     if (st === 'ready') { p.envelopes[e.id] = { openedAt: now().toISOString() }; save(); }
@@ -616,7 +642,7 @@
       </section>
       <div class="threadline">${C.thread.map((f, i) => {
         const open = i < n;
-        if (open) return `<article class="fragment"><h3>${esc(f.title)}</h3><p class="ftext">${esc(f.text)}</p></article>`;
+        if (open) return `<article class="fragment"><h3>${esc(V(f.title))}</h3><p class="ftext">${esc(V(f.text))}</p></article>`;
         const isFinal = i === C.thread.length - 1;
         const need = isFinal ? null : C.thresholds[i] - count;
         return `<article class="fragment locked"><h3>${esc(f.title)}</h3><p class="ftext">${isFinal ? 'נפתח כשכורכים את הקטלוג.' : need > 0 ? `נפתח אחרי עוד ${need} ${need === 1 ? 'מוצג' : 'מוצגים'}.` : 'נפתח בקרוב.'}</p></article>`;
@@ -638,8 +664,9 @@
           <h1 style="font-size:1.5rem">הקטלוג</h1>
         </div>
         <div class="row">
+          <button class="btn thread" id="keep">${ico('download')} לשמור / לשתף</button>
           <button class="btn secondary" id="print">${ico('print')} להדפיס / PDF</button>
-          <button class="btn ghost" id="export">${ico('download')} גיבוי</button>
+          <button class="btn ghost" id="export">גיבוי</button>
         </div>
       </div>
       ${order.length === 0 ? `<div class="empty" style="margin-top:16px">הקטלוג מתמלא מהקיר. אחרי המוצג הראשון הוא יתחיל להיראות כמו ספר.</div>` : ''}
@@ -686,11 +713,11 @@
         </div>` : ''}
         ${notes.length ? `<div class="page">
           <h2>מהמעטפות</h2>
-          ${notes.map((e) => `<article class="item"><p class="no">${esc(e.title)} · ${esc(L.hebrewDate(e.openAt))}</p><p class="ltitle" style="font-weight:700">${esc(e.prompt.label)}</p><p class="hand" style="white-space:pre-wrap;font-size:1.15rem">${esc(p.notes[e.prompt.key])}</p></article>`).join('')}
+          ${notes.map((e) => `<article class="item"><p class="no">${esc(e.title)} · ${esc(L.hebrewDate(e.openAt))}</p><p class="ltitle" style="font-weight:700">${esc(V(e.prompt.label))}</p><p class="hand" style="white-space:pre-wrap;font-size:1.15rem">${esc(p.notes[e.prompt.key])}</p></article>`).join('')}
         </div>` : ''}
         ${n > 0 ? `<div class="page">
           <h2>החוט האדום</h2>
-          <div class="threadline" style="margin-top:12px">${C.thread.slice(0, n).map((f) => `<article class="fragment"><h3>${esc(f.title)}</h3><p class="ftext">${esc(f.text)}</p></article>`).join('')}</div>
+          <div class="threadline" style="margin-top:12px">${C.thread.slice(0, n).map((f) => `<article class="fragment"><h3>${esc(V(f.title))}</h3><p class="ftext">${esc(V(f.text))}</p></article>`).join('')}</div>
         </div>` : ''}
         <div class="page cover">
           <p class="eyebrow">${esc(C.trip.datesLabel)}</p>
@@ -700,6 +727,7 @@
       </section>`;
     fillThumbs();
     view.querySelector('#print').addEventListener('click', () => window.print());
+    view.querySelector('#keep').addEventListener('click', exportKeepsake);
     view.querySelector('#export').addEventListener('click', exportBackup);
     const bind = view.querySelector('#bind');
     if (bind) bind.addEventListener('click', () => {
@@ -722,18 +750,66 @@
       <div class="credits-list">${CREDITS.map((c) => `<div class="row" style="display:flex;gap:10px;align-items:center"><img src="img/${esc(c.id)}.jpg" alt="" loading="lazy"><span><strong>${esc(c.title)}</strong><br>${esc(c.artist || 'ויקישיתוף')} · <a href="${esc(c.page)}" target="_blank" rel="noopener">${esc(c.license)}</a></span></div>`).join('')}</div>`;
   }
 
+  // ---------- saving outside the phone: share sheet (Drive, WhatsApp, Files) or download ----------
+  async function shareBlob(blob, filename, title) {
+    let file = null;
+    try { file = new File([blob], filename, { type: blob.type }); } catch (e) { file = null; }
+    if (file && navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+      try { await navigator.share({ files: [file], title }); return 'shared'; } catch (e) { if (e && e.name === 'AbortError') return 'cancelled'; }
+    }
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = filename;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+    return 'downloaded';
+  }
+  function markBackup(result) {
+    if (result === 'cancelled') return;
+    P().lastBackupAt = now().toISOString(); save();
+    toast(result === 'shared' ? 'נשלח. אם בחרת דרייב או קבצים, זה שמור שם.' : 'הקובץ ירד. שמרי אותו בדרייב או שלחי לעצמך.');
+  }
   async function exportBackup() {
     try {
       const json = await S.exportProfile(state, state.activeProfile);
-      const blob = new Blob([json], { type: 'application/json' });
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = `otzeret-${(P().name || 'museum').replace(/\s+/g, '_')}-${L.dayKey(now())}.json`;
-      document.body.appendChild(a); a.click(); a.remove();
-      setTimeout(() => URL.revokeObjectURL(a.href), 2000);
-      toast('קובץ הגיבוי ירד. שמרי אותו בדרייב או שלחי לעצמך.');
+      const name = (P().name || 'museum').replace(/\s+/g, '_');
+      const r = await shareBlob(new Blob([json], { type: 'application/json' }), `otzeret-backup-${name}-${L.dayKey(now())}.json`, `גיבוי המוזיאון של ${P().name}`);
+      markBackup(r);
+      if (r !== 'cancelled') render();
     } catch (e) { toast('הייצוא נכשל. נסי שוב מדפדפן אחר.'); }
   }
+  async function toDataUrl(url) {
+    try {
+      const b = await (await fetch(url)).blob();
+      return await new Promise((res) => { const fr = new FileReader(); fr.onload = () => res(fr.result); fr.onerror = () => res(null); fr.readAsDataURL(b); });
+    } catch (e) { return null; }
+  }
+  async function buildKeepsake() {
+    const cat = document.getElementById('catalogue'); if (!cat) return null;
+    const clone = cat.cloneNode(true);
+    for (const img of clone.querySelectorAll('img')) {
+      const src = img.getAttribute('src') || '';
+      if (!src) { img.remove(); continue; }
+      if (!src.startsWith('data:')) { const d = await toDataUrl(src); if (d) img.setAttribute('src', d); else img.remove(); }
+    }
+    let css = '', pcss = '';
+    try { css = await (await fetch('css/app.css')).text(); pcss = await (await fetch('css/print.css')).text(); } catch (e) { /* fonts and layout fall back to defaults */ }
+    const p = P();
+    const html = `<!doctype html><html lang="he" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${esc('המוזיאון של ' + p.name)}</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;500;700;900&family=Rubik:wght@400;500;700&family=Bellefair&family=Playpen+Sans+Hebrew:wght@400;600&display=swap">
+<style>${css}\n@media print{${pcss}}\nbody{padding:16px 16px 40px}.view{padding:0}</style></head>
+<body><main class="view"><p class="eyebrow" style="text-align:center;margin-bottom:10px">אוצרת · ${esc(C.trip.title)} · ${esc(C.trip.datesLabel)}</p>${clone.outerHTML}<p class="hint" style="text-align:center;margin-top:24px">קובץ עצמאי. נפתח בכל דפדפן, ומודפס ל־PDF מתפריט ההדפסה.</p></main></body></html>`;
+    return new Blob([html], { type: 'text/html' });
+  }
+  async function exportKeepsake() {
+    try {
+      toast('מכינה את הקובץ…', 2500);
+      const blob = await buildKeepsake(); if (!blob) return;
+      const name = (P().name || 'museum').replace(/\s+/g, '_');
+      const r = await shareBlob(blob, `otzeret-${name}-${L.dayKey(now())}.html`, `המוזיאון של ${P().name}`);
+      markBackup(r);
+    } catch (e) { toast('לא הצלחתי להכין את הקובץ. אפשר להדפיס ל־PDF במקום.'); }
+  }
+  window.OTZ_DEBUG = { buildKeepsake, shareBlob };
 
   // ---------- settings ----------
   function renderSettings() {
@@ -743,9 +819,10 @@
       <section class="hero"><h1>הגדרות</h1></section>
       <div class="stack-lg">
         <section class="panel">
-          <p class="ptitle">האוצרת</p>
+          <p class="ptitle">${V('האוצרת')}</p>
           <div class="body">
             <div class="field"><label for="sName">שם</label><input class="input" id="sName" maxlength="24" value="${esc(p.name)}"></div>
+            <div class="field"><label>איך לפנות</label><div class="row voice-toggle" id="sVoice"><button type="button" class="btn secondary" data-v="f" aria-pressed="${p.voice !== 'm'}">את</button><button type="button" class="btn secondary" data-v="m" aria-pressed="${p.voice === 'm'}">אתה</button></div></div>
             <div class="field"><label>סמל</label><div class="emblems" id="sEmblems">${EMBLEMS.map((e) => `<button type="button" data-e="${e}" aria-pressed="${e === p.emblem}">${e}</button>`).join('')}</div></div>
             <button class="btn" id="sSave">לשמור</button>
           </div>
@@ -754,7 +831,7 @@
           <p class="ptitle">מוזיאונים בטלפון הזה</p>
           <div class="body">
             <div class="profiles">${Object.values(state.profiles).map((pr) => `<div class="profile-row ${pr.id === p.id ? 'active' : ''}"><span class="em">${esc(pr.emblem)}</span><span style="flex:1">${esc(pr.name)} <span class="muted small">· ${Object.keys(pr.exhibits || {}).length} מוצגים</span></span>${pr.id === p.id ? '<span class="small muted">פעיל</span>' : `<button class="btn secondary" data-switch="${esc(pr.id)}" style="min-height:36px;padding:6px 12px">להחליף</button>`}</div>`).join('')}</div>
-            <button class="btn secondary" id="addProfile">להוסיף אוצרת נוספת</button>
+            <button class="btn secondary" id="addProfile">להוסיף מוזיאון נוסף</button>
             <p class="hint">אם האחיות משתפות טלפון, לכל אחת מוזיאון נפרד. בטלפון נפרד, כל אחת פותחת את הקישור אצלה.</p>
           </div>
         </section>
@@ -778,9 +855,9 @@
         <section class="panel">
           <p class="ptitle">גיבוי</p>
           <div class="body">
-            <div class="row"><button class="btn secondary" id="export">${ico('download')} לייצא קובץ גיבוי</button>
+            <div class="row"><button class="btn secondary" id="export">${ico('download')} לשמור / לשתף קובץ גיבוי</button>
             <label class="btn ghost">לייבא גיבוי<input type="file" accept="application/json,.json" id="import" hidden></label></div>
-            <p class="hint">הקובץ כולל את התמונות והרישומים של המוזיאון הפעיל. שמרי אותו לפני שמחליפים טלפון.</p>
+            <p class="hint">${V('הקובץ כולל את התמונות והרישומים של המוזיאון הפעיל. בטלפון הוא נשלח לדרייב, לוואטסאפ או לתיקיית הקבצים. שמרי אותו לפני שמחליפים טלפון.')}${p.lastBackupAt ? ` גיבוי אחרון: ${esc(L.hebrewDate(new Date(p.lastBackupAt)))}.` : ''}</p>
             <button class="btn ghost danger" id="reset">למחוק את המוזיאון הזה</button>
           </div>
         </section>
@@ -788,6 +865,7 @@
       </div>`;
     let emblem = p.emblem;
     view.querySelector('#sEmblems').addEventListener('click', (e) => { const b = e.target.closest('button'); if (!b) return; emblem = b.dataset.e; view.querySelectorAll('#sEmblems button').forEach((x) => x.setAttribute('aria-pressed', x === b)); });
+    view.querySelector('#sVoice').addEventListener('click', (e) => { const b = e.target.closest('button'); if (!b) return; p.voice = b.dataset.v; save(); render(); });
     view.querySelector('#sSave').addEventListener('click', () => { p.name = view.querySelector('#sName').value.trim() || p.name; p.emblem = emblem; save(); toast('נשמר.'); render(); });
     view.querySelectorAll('[data-switch]').forEach((b) => b.addEventListener('click', () => { state.activeProfile = b.dataset.switch; save(); render(); }));
     view.querySelector('#addProfile').addEventListener('click', () => { state.activeProfile = null; save(); go('#/'); render(); });

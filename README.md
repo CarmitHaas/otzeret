@@ -18,12 +18,25 @@ python3 -m http.server 8000
 ### Publish on GitHub Pages
 
 1. Push this folder to a repository (for example `otzeret`).
-2. Settings → Pages → Source: *Deploy from a branch* → branch `main`, folder `/ (root)`.
-3. Open `https://<user>.github.io/otzeret/` on each girl's phone and use *Add to Home Screen*. The app then works offline and behaves like an installed app.
+2. Settings → Pages → Source: *Deploy from a branch* → branch `master`, folder `/ (root)`.
+3. Open `https://carmitshaas.github.io/otzeret/` on each girl's phone and use *Add to Home Screen*. The app then works offline and behaves like an installed app.
 
 All paths are relative, so a sub-path deployment works without changes.
 
+## Keeping the memories
+
+Everything lives in the phone's browser storage (localStorage for text, IndexedDB for photos and sketches). It survives closing the app and restarting the phone. Two habits keep it safe:
+
+- **Install it.** *Add to Home Screen* (Safari share menu on iPhone, Chrome menu on Android). An installed app keeps its storage as long as it is installed; a plain browser tab that goes unused for a week can be cleaned up by iOS.
+- **Share the file.** Two buttons save outside the phone through the normal share sheet, so Google Drive, WhatsApp, iCloud Files or email all work with no account setup:
+  - *הקטלוג → לשמור / לשתף*: a single self-contained HTML file of the museum catalogue with the photos and sketches embedded. Opens in any browser, prints to PDF, and needs nothing else.
+  - *גיבוי* (catalogue toolbar or Settings): a JSON backup with everything, which *Settings → לייבא גיבוי* restores on any phone. Restoring several backups on one phone merges them into a family museum.
+  - Every evening after 19:00, if she hung something that day and has not saved yet, the Today screen shows a one-tap reminder.
+- **Print.** *להדפיס / PDF* prints the catalogue as an A4 booklet (Share → Print → Save as PDF on iPhone).
+
 ## For the parents
+
+- **Voice.** Onboarding asks *איך לפנות אליך* (את / אתה). The texts are written for a girl; the masculine setting rewrites the hand-checked list of gendered phrases in `js/voice.js`, so a parent can play with a museum of his own. Change it any time in Settings.
 
 - **Preview any day** by opening the app with `?now=2026-09-18T10:00` (or from Settings → *להורים*). This is per browser tab and does not change the girls' devices.
 - **Open everything** with the toggle in Settings → *להורים* (kills the surprise, useful for testing).

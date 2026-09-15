@@ -463,3 +463,10 @@ textarea.input { min-height: 110px; resize: vertical; line-height: 1.5; }
 .credits-list .row { padding: 8px 0; border-bottom: 1px solid var(--line); font-size: .8125rem; color: var(--muted); }
 .credits-list .row strong { color: var(--ink-2); font-weight: 500; }
 .credits-list img { width: 40px; height: 40px; object-fit: cover; border-radius: var(--r-sm); flex: none; }
+
+/* voice toggle, backup nudge */
+.voice-toggle .btn[aria-pressed="true"] { border-color: var(--ink); background: var(--paper-2); box-shadow: inset 0 0 0 1px var(--ink); }
+.nudge { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center; margin-top: 16px; padding: 14px 16px; border-radius: var(--r); background: color-mix(in srgb, var(--thread) 7%, var(--card)); border: 1px solid color-mix(in srgb, var(--thread) 30%, var(--line)); }
+.nudge p { line-height: 1.4; }
+.nudge .btn { white-space: nowrap; }
+@media (max-width: 420px) { .nudge { grid-template-columns: 1fr; } }

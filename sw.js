@@ -1,12 +1,12 @@
 /* אוצרת — offline cache. Bump VERSION when files change. */
-const VERSION = 'otzeret-v1.1.0';
+const VERSION = 'otzeret-v1.2.0';
 let IMGS = [];
 try { importScripts('./js/credits.js'); IMGS = (self.OTZ_CREDITS || []).map((c) => './img/' + c.id + '.jpg'); } catch (e) { IMGS = []; }
 const FONTS = 'otzeret-fonts';
 const PRECACHE = [
   './', './index.html', './manifest.webmanifest',
   './css/app.css', './css/print.css',
-  './js/logic.js', './js/store.js', './js/content.js', './js/content-paris.js', './js/content-london.js', './js/content-south.js', './js/credits.js', './js/sketch.js', './js/app.js',
+  './js/logic.js', './js/store.js', './js/content.js', './js/content-paris.js', './js/content-london.js', './js/content-south.js', './js/credits.js', './js/voice.js', './js/sketch.js', './js/app.js',
   './icons/icon.svg', './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png',
 ];
 self.addEventListener('install', (e) => {

@@ -1,10 +1,14 @@
 # אוצרת · Otzeret
 
-A private, non-competitive trip game for three sisters (18, 14, 13) on a family trip to Paris, London, Disneyland Paris and La Ciotat, 16–29 September 2026. Hebrew, right-to-left, phone-first, works offline, no server.
+A private, non-competitive trip game for three sisters (18, 14, 13) and their parents on a family trip to Paris, London, Disneyland Paris and La Ciotat, 16–29 September 2026. Hebrew, right-to-left, phone-first, works offline, no server.
+
+Live: **https://carmithaas.github.io/otzeret/**
 
 **The idea.** Before there were museums there were cabinets of wonders. Each girl is the curator of her own museum. Every stop on the trip can become an exhibit once she does one small looking-or-making task (a constrained photo, a blind-contour sketch, a five-word poem, a named colour, a hunt). A red thread stitches her exhibits together on the museum wall, sealed envelopes open at set moments of the trip (first night, 75 m under the Channel, the train home), a serialized story unlocks as exhibits accumulate, and at the end she prints her museum's catalogue as the keepsake.
 
 Nothing is scored. Each museum is hers alone and is stored only on her phone.
+
+In La Ciotat the family stays in the house where their grandfather grew up, so the last wing carries a second thread: the town where Braque painted the harbour orange in 1907 is also the town where someone was their exact age, in the room they are sleeping in. One envelope asks each of them to write a small, precise question for him; the last envelope, after the trip, gives it back and asks for his answer.
 
 ## Run it
 
@@ -18,8 +22,8 @@ python3 -m http.server 8000
 ### Publish on GitHub Pages
 
 1. Push this folder to a repository (for example `otzeret`).
-2. Settings → Pages → Source: *Deploy from a branch* → your branch, folder `/ (root)`.
-3. Open `https://<your-user>.github.io/<repo>/` on each girl's phone and use *Add to Home Screen*. The app then works offline and behaves like an installed app.
+2. Settings → Pages → Source: *Deploy from a branch* → branch `master`, folder `/ (root)`.
+3. Open `https://carmithaas.github.io/otzeret/` on each girl's phone and use *Add to Home Screen*. The app then works offline and behaves like an installed app.
 
 All paths are relative, so a sub-path deployment works without changes.
 

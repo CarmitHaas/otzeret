@@ -6,9 +6,9 @@
 
 :root {
   --paper: #FFFFFF; --paper-2: #FFFFFF; --card: #FFFFFF;
-  --ink: #1A1512; --ink-2: #3A322A; --muted: #55493F;
-  --line: #D8CCB8; --line-2: #B7A891;
-  --thread: #A8281A; --thread-soft: #F3E2DE;
+  --ink: #16161A; --ink-2: #3A3A42; --muted: #55555E;
+  --line: #D9D8D3; --line-2: #B4B3AD;
+  --thread: #B01226; --thread-soft: #F3E2DE;
   --print-mat: #FFFFFF;
   --grain: none; --laid: none; --photo-wash: none; --top-light: none;
   --sh-1: none; --sh-2: none; --sh-3: none; --inset-work: none;

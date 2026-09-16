@@ -146,7 +146,13 @@
       const b = document.createElement('span'); b.className = 'badge'; envTab.appendChild(b);
     }
   }
+  let lastHash = null;
+  const scrollFor = new Map();
   function render() {
+    const hash = location.hash || '#/';
+    const sameScreen = hash === lastHash;
+    const heldScroll = window.scrollY;
+    if (!sameScreen && lastHash !== null) scrollFor.set(lastHash, window.scrollY);
     applyTheme();
     document.getElementById('settingsBtn').innerHTML = ico('gear');
     document.querySelectorAll('.tab-ico').forEach((el) => { el.innerHTML = ico(el.dataset.ico); });
@@ -167,7 +173,12 @@
     else if (head === 'credits') { setTab(''); renderCredits(); }
     else { setTab('today'); renderToday(); }
     matSmallImages();
-    view.scrollTop = 0; window.scrollTo(0, 0);
+    // Re-rendering the same screen (a toggle, a saved note) must not throw you back to the top.
+    // Returning to a screen you were already on puts you back where you were.
+    const target = sameScreen ? heldScroll : (scrollFor.get(hash) || 0);
+    lastHash = hash;
+    window.scrollTo(0, target);
+    if (target > 0) requestAnimationFrame(() => window.scrollTo(0, target));
   }
   window.addEventListener('hashchange', render);
   document.addEventListener('click', (e) => { if (e.target.closest && e.target.closest('#sunBtn')) toggleSun(); });
@@ -247,7 +258,7 @@
       ${bannerHtml()}
       <section class="hero" data-wing="${esc(hall.wing)}">
         <p class="meta-line">${wingLine(hall.wing)}<span aria-hidden="true">·</span><span>${esc(L.hebrewDate(now()))}</span>${hall.date !== dk ? `<span aria-hidden="true">·</span><span>אולם ${esc(hall.label || L.shortDate(hall.date))}</span>` : ''}</p>
-        ${imgFor('hall-' + hall.id) ? `<figure class="print photo-fx tape photo-slot"><img src="${imgFor('hall-' + hall.id)}" alt=""><span class="stamp" aria-hidden="true">${esc(stampDate(hall.date))}</span></figure>` : ''}
+        ${imgFor('hall-' + hall.id) ? `<figure class="print photo-fx photo-slot"><img src="${imgFor('hall-' + hall.id)}" alt=""><span class="stamp" aria-hidden="true">${esc(stampDate(hall.date))}</span></figure>` : ''}
         <h1>${esc(hall.title)}</h1>
         ${hall.sub ? `<p class="sub">${esc(hall.sub)}</p>` : ''}
       </section>
@@ -546,10 +557,10 @@
       body.innerHTML = `
         <div class="sketch-tools">
           <span class="group">
-            <button class="pen" data-c="#2A211C" style="background:#2A211C" aria-pressed="true" aria-label="שחור"></button>
-            <button class="pen" data-c="#C0241E" style="background:#C0241E" aria-pressed="false" aria-label="אדום"></button>
-            <button class="pen" data-c="#2E5E8C" style="background:#2E5E8C" aria-pressed="false" aria-label="כחול"></button>
-            <button class="pen" data-c="#A05A05" style="background:#A05A05" aria-pressed="false" aria-label="חום"></button>
+            <button class="pen" data-c="#1B1B1F" style="background:#1B1B1F" aria-pressed="true" aria-label="שחור"></button>
+            <button class="pen" data-c="#C8102E" style="background:#C8102E" aria-pressed="false" aria-label="אדום"></button>
+            <button class="pen" data-c="#1F5FC4" style="background:#1F5FC4" aria-pressed="false" aria-label="כחול"></button>
+            <button class="pen" data-c="#0F7A4E" style="background:#0F7A4E" aria-pressed="false" aria-label="ירוק"></button>
           </span>
           <span class="group">
             <button class="w" data-w="2" aria-pressed="false" aria-label="דק"><i style="width:14px;height:2px"></i></button>
@@ -850,7 +861,7 @@
     try { css = await (await fetch('css/app.css')).text(); pcss = await (await fetch('css/print.css')).text(); } catch (e) { /* fonts and layout fall back to defaults */ }
     const p = P();
     const html = `<!doctype html><html lang="he" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${esc('המוזיאון של ' + p.name)}</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Assistant:wght@400..800&family=Suez+One&family=Karantina:wght@700&family=Gveret+Levin&family=Instrument+Serif:ital@0;1&family=Doto:wght@400..700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;800&family=Gveret+Levin&family=Doto:wght@500;600&display=swap">
 <style>${css}\n@media print{${pcss}}\nbody{padding:16px 16px 40px}.view{padding:0}</style></head>
 <body><main class="view"><p class="eyebrow" style="text-align:center;margin-bottom:10px">אוצרת · ${esc(C.trip.title)} · ${esc(C.trip.datesLabel)}</p>${clone.outerHTML}<p class="hint" style="text-align:center;margin-top:24px">קובץ עצמאי. נפתח בכל דפדפן, ומודפס ל־PDF מתפריט ההדפסה.</p></main></body></html>`;
     return new Blob([html], { type: 'text/html' });

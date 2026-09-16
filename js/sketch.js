@@ -23,7 +23,7 @@
 
     const strokes = [];
     let current = null;
-    let color = opts.color || '#1A1F2B';
+    let color = opts.color || '#1B1B1F';
     let width = opts.width || 3;
 
     function pos(e) {

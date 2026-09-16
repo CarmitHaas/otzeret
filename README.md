@@ -18,8 +18,8 @@ python3 -m http.server 8000
 ### Publish on GitHub Pages
 
 1. Push this folder to a repository (for example `otzeret`).
-2. Settings → Pages → Source: *Deploy from a branch* → branch `master`, folder `/ (root)`.
-3. Open `https://carmitshaas.github.io/otzeret/` on each girl's phone and use *Add to Home Screen*. The app then works offline and behaves like an installed app.
+2. Settings → Pages → Source: *Deploy from a branch* → your branch, folder `/ (root)`.
+3. Open `https://<your-user>.github.io/<repo>/` on each girl's phone and use *Add to Home Screen*. The app then works offline and behaves like an installed app.
 
 All paths are relative, so a sub-path deployment works without changes.
 

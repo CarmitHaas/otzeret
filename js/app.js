@@ -419,7 +419,7 @@
         <h1>${esc(s.name)}</h1>
         <p class="place latin">${esc(s.place)}</p>
       </header>
-      <div class="hook"><p class="wall-text">${esc(s.hook)}</p></div>`;
+      <div class="hook" data-wing="${esc(wing)}"><p class="wall-text">${esc(s.hook)}</p></div>`;
 
     if (st === 'locked') {
       view.innerHTML = `${head}<div class="lock" style="margin-top:18px;display:flex;gap:8px;align-items:center;color:var(--muted)">${ico('lock')}<span>האולם הזה נפתח ב${esc(L.hebrewDate(hall.date))}. הכרטיס מחכה.</span></div>`;

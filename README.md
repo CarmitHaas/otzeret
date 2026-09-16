@@ -86,11 +86,15 @@ To use your own picture for a stop, overwrite `img/<stop id>.jpg` (960 px wide i
 
 ## Design
 
-"נייר ופלאש" (Paper & Flash): a warm album page rather than a gallery wall. Every photograph is a physical print with a mat, a warm wash and shared grain, which is what makes 87 mismatched Wikimedia images read as one album. The red thread is a real stitch, drawn as two SVG paths that sag between brass nails. Everything the app says is set in Suez One and Assistant; everything *she* writes appears in Gveret Levin, a Hebrew handwriting face. All six families were checked for Hebrew coverage; Instrument Serif and Doto are used only for Latin place names and numerals.
+A colour-coded planner, not a gallery wall. Each day is a card tinted with its wing's colour, the way a hand-drawn trip planner colours its day columns: blue for Paris, green for London, magenta for Disneyland, orange for the south. Times are badges in the same colour, mission icons sit in tinted discs, and the quote at the top of each stop takes the wing colour too. The ground stays white and the headlines are large and bold, so the colour comes from the photographs and the day tints rather than from chrome.
 
-Three themes, all token-driven: light, dark (warm brown-black, prints keep light mats so photos stay alive at night) and **sun**, a high-contrast white theme toggled from the top bar for reading outdoors in daylight. `prefers-contrast: more` is mapped to it. No text is smaller than 15px, and every text colour clears 4.5:1 on every surface it can sit on.
+Everything the app says is set in Assistant, at ExtraBold for headings. Everything *she* writes appears in Gveret Levin, a Hebrew handwriting face. Doto, a dot-matrix face, is used for one thing only: the digicam date stamp burned into the corner of each day's photo. All three were checked for Hebrew coverage.
 
-The design direction, including the research behind it, the measured contrast table and the anti-brief, is in `docs/design-direction.md`.
+The museum wall keeps the tactile part of the idea: exhibits hang as slightly tilted prints on brass nails, connected by a red thread drawn as two SVG paths so it sags and casts a shadow.
+
+Three themes, all token-driven: light, dark, and **sun**, a high-contrast white theme toggled from the top bar for reading outdoors in daylight; `prefers-contrast: more` maps to it automatically. No text is smaller than 15px, and every text colour clears 4.5:1 on every surface it can sit on. Tapping something never loses your place: an action on the current screen holds the scroll position, and going back returns you to where you were.
+
+The research behind the direction, including the contrast table and the anti-brief, is in `docs/design-direction.md`. Its palette and font choices were later revised toward this cleaner, brighter system.
 
 ## Architecture
 

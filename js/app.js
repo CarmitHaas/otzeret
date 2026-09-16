@@ -88,6 +88,15 @@
   const wingLine = (w) => `${wingGlyph(w)}<span class="wing-name">${esc(wingName(w))}</span>`;
   const stampDate = (d) => { const x = L.parseLocal(d) || new Date(d); const z = (n) => String(n).padStart(2, '0'); return `${z(x.getDate())} ${z(x.getMonth() + 1)} '${String(x.getFullYear()).slice(2)}`; };
   const COST = { photo: 'דקה', sketch: '3 דקות', words: '3 דקות', color: 'דקה', find: '5 דקות' };
+  /** A prompt that names its own duration wins over the default for its type. */
+  function costOf(m) {
+    const t = `${m.prompt || ''} ${m.title || ''}`;
+    const sec = t.match(/(\d+)\s*שניות/);
+    if (sec) return Number(sec[1]) <= 90 ? 'דקה' : '2 דקות';
+    const min = t.match(/(\d+)\s*דקות/);
+    if (min) return `${min[1]} דקות`;
+    return COST[m.type];
+  }
   /** A small or soft photo gets a bigger mat, the way a museum mats a small print. */
   function matSmallImages(root) {
     (root || view).querySelectorAll('.print > img').forEach((img) => {
@@ -433,7 +442,7 @@
         <div class="choices" data-wing="${esc(wing)}">${(s.missions || []).map(vm).map((m) => `
           <button class="choice" data-m="${esc(m.id)}">
             <span class="glyph">${ico('g_' + m.type)}</span>
-            <span><span class="ctitle">${esc(m.title)}</span><span class="cprompt">${esc(m.prompt)}</span>${COST[m.type] ? `<span class="cost">${esc(COST[m.type])}</span>` : ''}</span>
+            <span><span class="ctitle">${esc(m.title)}</span><span class="cprompt">${esc(m.prompt)}</span>${costOf(m) ? `<span class="cost">${esc(costOf(m))}</span>` : ''}</span>
           </button>`).join('')}</div>
         ${littleBlock(s, littleDone)}`;
       view.querySelectorAll('.choice').forEach((b) => b.addEventListener('click', () => go(`#/stop/${s.id}/m/${b.dataset.m}`)));

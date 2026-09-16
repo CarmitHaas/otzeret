@@ -1,5 +1,5 @@
 /* אוצרת — offline cache. Bump VERSION when files change. */
-const VERSION = 'otzeret-v1.6.0';
+const VERSION = 'otzeret-v1.6.1';
 let IMGS = [];
 try { importScripts('./js/credits.js'); IMGS = (self.OTZ_CREDITS || []).map((c) => './img/' + c.id + '.jpg'); } catch (e) { IMGS = []; }
 const FONTS = 'otzeret-fonts';

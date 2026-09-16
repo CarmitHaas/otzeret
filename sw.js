@@ -1,5 +1,5 @@
 /* אוצרת — offline cache. Bump VERSION when files change. */
-const VERSION = 'otzeret-v1.2.0';
+const VERSION = 'otzeret-v1.3.0';
 let IMGS = [];
 try { importScripts('./js/credits.js'); IMGS = (self.OTZ_CREDITS || []).map((c) => './img/' + c.id + '.jpg'); } catch (e) { IMGS = []; }
 const FONTS = 'otzeret-fonts';
@@ -11,7 +11,9 @@ const PRECACHE = [
 ];
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(VERSION).then(async (c) => {
-    await c.addAll(PRECACHE);
+    // 'reload' so an update is never seeded from a stale copy in the browser's HTTP cache.
+    const fresh = (u) => { try { return new Request(u, { cache: 'reload' }); } catch (err) { return u; } };
+    await Promise.all(PRECACHE.map(async (u) => { try { const r = await fetch(fresh(u)); if (r && r.ok) await c.put(u, r); } catch (err) { /* offline install */ } }));
     // Photos: best effort, one at a time so a missing file never breaks install.
     for (const u of IMGS) { try { await c.add(u); } catch (err) { /* skip */ } }
   }).then(() => self.skipWaiting()));
@@ -41,7 +43,10 @@ self.addEventListener('fetch', (e) => {
   const isCore = /\.(html|css|js|webmanifest)$/.test(url.pathname) || url.pathname.endsWith('/');
   if (isCore) {
     // Network first (so content fixes arrive on the next launch), cache fallback when offline or slow.
-    e.respondWith(withTimeout(fetch(e.request), 3000).then((res) => {
+    // cache: 'reload' bypasses the browser's HTTP cache, so an update always wins over a stale copy.
+    let req = e.request;
+    try { req = new Request(e.request, { cache: 'reload' }); } catch (err) { req = e.request; }
+    e.respondWith(withTimeout(fetch(req), 3000).then((res) => {
       if (res && res.ok) caches.open(VERSION).then((c) => c.put(e.request, res.clone()));
       return res;
     }).catch(() => caches.match(e.request, { ignoreSearch: true }).then((hit) => hit || caches.match('./index.html'))));

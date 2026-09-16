@@ -84,6 +84,14 @@ Each hall and most stops have a photograph in `img/<id>.jpg`, fetched from Wikip
 
 To use your own picture for a stop, overwrite `img/<stop id>.jpg` (960 px wide is plenty) and keep or edit its entry in `js/credits.js`. To add a photo for a stop that has none, add an entry to `js/credits.js`; the app only shows images listed there. Re-run the script for a single id with `python3 tools/fetch_images.py <id>`.
 
+## Design
+
+"נייר ופלאש" (Paper & Flash): a warm album page rather than a gallery wall. Every photograph is a physical print with a mat, a warm wash and shared grain, which is what makes 87 mismatched Wikimedia images read as one album. The red thread is a real stitch, drawn as two SVG paths that sag between brass nails. Everything the app says is set in Suez One and Assistant; everything *she* writes appears in Gveret Levin, a Hebrew handwriting face. All six families were checked for Hebrew coverage; Instrument Serif and Doto are used only for Latin place names and numerals.
+
+Three themes, all token-driven: light, dark (warm brown-black, prints keep light mats so photos stay alive at night) and **sun**, a high-contrast white theme toggled from the top bar for reading outdoors in daylight. `prefers-contrast: more` is mapped to it. No text is smaller than 15px, and every text colour clears 4.5:1 on every surface it can sit on.
+
+The design direction, including the research behind it, the measured contrast table and the anti-brief, is in `docs/design-direction.md`.
+
 ## Architecture
 
 - `index.html`, `css/app.css`, `css/print.css`: shell, tokens, components, catalogue print layout.

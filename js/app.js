@@ -58,6 +58,22 @@
     print: '<svg viewBox="0 0 24 24"><path d="M6 9V3h12v6M6 18H4a1 1 0 0 1-1-1v-6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v6a1 1 0 0 1-1 1h-2"/><rect x="6" y="14" width="12" height="7"/></svg>',
     thread: '<svg viewBox="0 0 24 24"><path d="M4 20c4-8 8 4 12-4s4-8 4-8"/><circle cx="4" cy="20" r="1.5"/></svg>',
     little: '<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M5 21a7 7 0 0 1 14 0"/></svg>',
+    sun: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.2 5.2l1.6 1.6M17.2 17.2l1.6 1.6M5.2 18.8l1.6-1.6M17.2 6.8l1.6-1.6"/></svg>',
+    pin: '<svg viewBox="0 0 24 24"><path d="M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11z"/><circle cx="12" cy="10" r="2.4"/></svg>',
+    stitchcheck: '<svg viewBox="0 0 24 24" style="stroke-dasharray:3.2 2.4"><path d="M5 12.5l4.5 4.5L19 7"/></svg>',
+    knot: '<svg viewBox="0 0 24 24"><path d="M7 17c5-2 3-8 8-10" stroke-width="2.4"/><circle cx="8.5" cy="14.5" r="3" stroke-width="2.4"/></svg>',
+    // mission glyphs
+    g_photo: '<svg viewBox="0 0 24 24"><path d="M3 8V4h4M21 8V4h-4M3 16v4h4M21 16v4h-4"/><circle cx="12" cy="12" r="3.4"/></svg>',
+    g_sketch: '<svg viewBox="0 0 24 24"><path d="M4 16c3-6 5 3 8-3s4 4 8 1"/></svg>',
+    g_words: '<svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h8"/></svg>',
+    g_color: '<svg viewBox="0 0 24 24"><rect x="3.5" y="6" width="17" height="12" rx="2"/><path d="M8.5 6v12M14 6v12"/></svg>',
+    g_find: '<svg viewBox="0 0 24 24"><circle cx="6" cy="7" r="1.1"/><circle cx="12" cy="6" r="1.1"/><circle cx="18" cy="8" r="1.1"/><circle cx="7" cy="17" r="1.1"/><circle cx="17" cy="17" r="1.1"/><circle cx="12" cy="12.5" r="3.6" stroke-width="2.2"/></svg>',
+    // wing glyphs
+    w_paris: '<svg viewBox="0 0 24 24"><path d="M12 3L20 20H4z"/></svg>',
+    w_london: '<svg viewBox="0 0 24 24"><path d="M4 20V11a8 8 0 0 1 16 0v9"/></svg>',
+    w_disney: '<svg viewBox="0 0 24 24"><path d="M12 3l2.6 5.6 6 .8-4.4 4.2 1.1 6-5.3-3-5.3 3 1.1-6L3.4 9.4l6-.8z"/></svg>',
+    w_south: '<svg viewBox="0 0 24 24"><path d="M2 9c3-3 5 3 8 0s5-3 8 0 4 0 4 0M2 16c3-3 5 3 8 0s5-3 8 0 4 0 4 0"/></svg>',
+    w_travel: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/></svg>',
   };
   const ico = (n) => ICONS[n] || '';
 
@@ -67,8 +83,18 @@
   const imgFor = (id) => IMG_IDS.has(id) ? `img/${id}.jpg` : null;
   const creditFor = (id) => CREDITS.find((c) => c.id === id);
   const creditLine = (id) => { const c = creditFor(id); return c ? `<p class="credit">תצלום: ${esc(c.artist || 'ויקישיתוף')} · <a href="${esc(c.page)}" target="_blank" rel="noopener">${esc(c.license)}</a></p>` : ''; };
-  const tilts = [-2.2, 1.6, -1.1, 2.4, -1.8, 1.2, -2.6, 1.9];
   let justDrew = false;
+  const wingGlyph = (w) => `<span class="wing-glyph">${ico('w_' + (w || 'travel'))}</span>`;
+  const wingLine = (w) => `${wingGlyph(w)}<span class="wing-name">${esc(wingName(w))}</span>`;
+  const stampDate = (d) => { const x = L.parseLocal(d) || new Date(d); const z = (n) => String(n).padStart(2, '0'); return `${z(x.getDate())} ${z(x.getMonth() + 1)} '${String(x.getFullYear()).slice(2)}`; };
+  const COST = { photo: 'דקה', sketch: '3 דקות', words: '3 דקות', color: 'דקה', find: '5 דקות' };
+  /** A small or soft photo gets a bigger mat, the way a museum mats a small print. */
+  function matSmallImages(root) {
+    (root || view).querySelectorAll('.print > img').forEach((img) => {
+      const check = () => { if (img.naturalWidth && img.naturalWidth < 620) img.parentElement.classList.add('print--matted'); };
+      if (img.complete) check(); else img.addEventListener('load', check, { once: true });
+    });
+  }
 
   // ---------- voice (את / אתה) ----------
   const voice = () => (P() && P().voice) || 'f';
@@ -90,6 +116,13 @@
     const t = state.theme || 'auto';
     if (t === 'auto') document.documentElement.removeAttribute('data-theme');
     else document.documentElement.setAttribute('data-theme', t);
+    const btn = document.getElementById('sunBtn');
+    if (btn) { btn.innerHTML = ico('sun'); btn.setAttribute('aria-pressed', t === 'sun'); }
+  }
+  function toggleSun() {
+    if ((state.theme || 'auto') === 'sun') state.theme = state.themeBase || 'auto';
+    else { state.themeBase = state.theme || 'auto'; state.theme = 'sun'; }
+    save(); applyTheme(); render();
   }
 
   // ---------- routing ----------
@@ -133,9 +166,11 @@
     else if (head === 'settings') { setTab(''); renderSettings(); }
     else if (head === 'credits') { setTab(''); renderCredits(); }
     else { setTab('today'); renderToday(); }
+    matSmallImages();
     view.scrollTop = 0; window.scrollTo(0, 0);
   }
   window.addEventListener('hashchange', render);
+  document.addEventListener('click', (e) => { if (e.target.closest && e.target.closest('#sunBtn')) toggleSun(); });
 
   const bannerHtml = () => (showBanner || !S.storageOk) ? `<div class="banner">${V('הדפדפן לא מאפשר לשמור פה. המוזיאון יעבוד, אבל לא יישמר אחרי סגירה. נסי לפתוח לא בחלון פרטי.')}</div>` : '';
   const backLink = (href, text) => `<a class="back" href="${href}">${ico('back')}<span>${esc(text)}</span></a>`;
@@ -145,7 +180,7 @@
   function renderOnboarding(st0) {
     const st = st0 || { name: '', emblem: EMBLEMS[0], voice: 'f' };
     const T = (t) => window.OTZ_VOICE.apply(t, st.voice);
-    const strip = ['d17', 'd21', 'd23', 'd26'].some((h) => imgFor('hall-' + h)) ? `<div class="strip">${[['d17', 'paris'], ['d21', 'london'], ['d23', 'disney'], ['d26', 'south']].map(([h, w]) => imgFor('hall-' + h) ? `<div data-wing="${w}"><img src="${imgFor('hall-' + h)}" alt=""><span></span></div>` : '').join('')}</div>` : '';
+    const strip = ['d17', 'd21', 'd23', 'd26'].some((h) => imgFor('hall-' + h)) ? `<div class="strip">${[['d17', 'paris'], ['d21', 'london'], ['d23', 'disney'], ['d26', 'south']].map(([h, w]) => imgFor('hall-' + h) ? `<div data-wing="${w}"><span class="print photo-fx"><img src="${imgFor('hall-' + h)}" alt=""></span><span class="bar"></span></div>` : '').join('')}</div>` : '';
     view.innerHTML = `
       <section class="onboard stack-lg">
         ${strip}
@@ -210,17 +245,16 @@
 
     view.innerHTML = `
       ${bannerHtml()}
-      <section class="hero ${imgFor('hall-' + hall.id) ? 'photo' : ''}" data-wing="${esc(hall.wing)}">
-        ${imgFor('hall-' + hall.id) ? `<img class="hero-img" src="${imgFor('hall-' + hall.id)}" alt=""><span class="wing-tag">${esc(wingName(hall.wing))}</span>` : ''}
-        <div class="hero-text">
-          <p class="date">${esc(L.hebrewDate(now()))}${hall.date !== dk ? ` · אולם ${esc(hall.label || L.shortDate(hall.date))}` : ''}</p>
-          <h1>${esc(hall.title)}</h1>
-          ${hall.sub ? `<p class="sub">${esc(hall.sub)}</p>` : ''}
-        </div>
+      <section class="hero" data-wing="${esc(hall.wing)}">
+        <p class="meta-line">${wingLine(hall.wing)}<span aria-hidden="true">·</span><span>${esc(L.hebrewDate(now()))}</span>${hall.date !== dk ? `<span aria-hidden="true">·</span><span>אולם ${esc(hall.label || L.shortDate(hall.date))}</span>` : ''}</p>
+        ${imgFor('hall-' + hall.id) ? `<figure class="print photo-fx tape photo-slot"><img src="${imgFor('hall-' + hall.id)}" alt=""><span class="stamp" aria-hidden="true">${esc(stampDate(hall.date))}</span></figure>` : ''}
+        <h1>${esc(hall.title)}</h1>
+        ${hall.sub ? `<p class="sub">${esc(hall.sub)}</p>` : ''}
       </section>
       ${beforeTrip ? `<div class="banner">הטיול מתחיל ב־${esc(L.shortDate(C.trip.start))}. עד אז אפשר להסתכל במוזיאון הריק, לפתוח את ההגדרות, ולתת שם. האולמות נפתחים לפי הימים.</div>` : ''}
       ${afterTrip ? `<div class="banner">הטיול נגמר, המוזיאון פתוח לתמיד. הזמן <a href="#/catalogue">לכרוך את הקטלוג</a>.</div>` : ''}
       <section class="daycard ${card ? '' : 'undrawn'} ${justDrew ? 'flip' : ''}" id="daycard">
+        ${card ? `<span class="knot" aria-hidden="true">${ico('knot')}</span>` : ''}
         <p class="eyebrow">קלף היום</p>
         ${card ? `<p class="text">${esc(V(card.text))}</p>
           <div class="actions">${cardState.redrawn ? `<span class="hint">זה הקלף. מחר יש חדש.</span>` : `<button class="btn ghost" id="redraw">להחליף פעם אחת</button>`}</div>`
@@ -233,13 +267,13 @@
       ${nextEnv ? `<div class="section-title"><h2>מעטפות</h2></div>
         <a class="env ${nextEnv.st}" href="${nextEnv.st === 'ready' ? `#/envelope/${nextEnv.e.id}` : '#/envelopes'}">
           <span class="seal">${esc(nextEnv.e.seal || '✉')}</span>
-          <span><span class="etitle">${nextEnv.st === 'ready' ? 'מעטפה מחכה לך: ' : 'המעטפה הבאה: '}${esc(nextEnv.e.title)}</span><br><span class="ewhen">${nextEnv.st === 'ready' ? 'אפשר לפתוח' : esc(L.countdown(now(), nextEnv.e.openAt)) + (nextEnv.e.where ? ' · ' + esc(nextEnv.e.where) : '')}</span></span>
+          <span><span class="etitle">${nextEnv.st === 'ready' ? V('מעטפה מחכה לך: ') : 'המעטפה הבאה: '}${esc(nextEnv.e.title)}</span><span class="ewhen">${nextEnv.st === 'ready' ? 'אפשר לפתוח' : esc(L.countdown(now(), nextEnv.e.openAt)) + (nextEnv.e.where ? ' · ' + esc(nextEnv.e.where) : '')}</span></span>
           <span class="arrow">${ico('back')}</span>
         </a>` : ''}
       ${tc > 0 ? `<div class="section-title"><h2>החוט האדום</h2></div>
         <a class="env ${tc > seenThread ? 'ready' : 'opened'}" href="#/thread">
           <span class="seal">${tc}</span>
-          <span><span class="etitle">${tc > seenThread ? 'נפתח קטע חדש בסיפור' : `${tc} מתוך ${C.thresholds.length + 1} קטעים פתוחים`}</span><br><span class="ewhen">סיפור אחד שעובר דרך כל הטיול</span></span>
+          <span><span class="etitle">${tc > seenThread ? 'נפתח קטע חדש בסיפור' : `${tc} מתוך ${C.thresholds.length + 1} קטעים פתוחים`}</span><span class="ewhen">סיפור אחד שעובר דרך כל הטיול</span></span>
           <span class="arrow">${ico('back')}</span>
         </a>` : ''}`;
 
@@ -262,10 +296,15 @@
 
   function stopItem(s) {
     const ex = P().exhibits[s.id];
+    const img = imgFor(s.id);
     return `<a class="stopitem ${ex ? 'done' : ''}" href="#/stop/${esc(s.id)}" data-wing="${esc(wingOf(s))}">
-      <span class="time ${s.time ? '' : 'when'}">${esc(s.time || s.when || '')}</span>
-      <span><span class="name">${esc(s.name)}</span><br><span class="place">${latin(s.place)}</span></span>
-      <span class="state ${ex ? 'done' : 'todo'}">${ex ? ico('check') : ''}</span>
+      ${img ? `<span class="thumb print photo-fx"><img src="${img}" alt="" loading="lazy"></span>` : `<span class="thumb blank">${ico('pin')}</span>`}
+      <span class="mid">
+        <span class="time ${s.time ? '' : 'when'}">${esc(s.time || s.when || '')}</span>
+        <span class="name">${esc(s.name)}</span>
+        <span class="place latin">${esc(s.place)}</span>
+      </span>
+      <span class="state">${ex ? ico('stitchcheck') : '<span class="ring"></span>'}</span>
     </a>`;
   }
 
@@ -298,26 +337,28 @@
     const stops = stopsOfHall(h.id);
     const done = stops.filter((s) => P().exhibits[s.id]).length;
     return `<section class="hall ${st}" data-wing="${esc(h.wing)}">
-      <div class="hall-head wing-band">
-        <div class="hall-title">${imgFor('hall-' + h.id) ? `<img class="thumb" src="${imgFor('hall-' + h.id)}" alt="">` : ''}<h2>${esc(h.title)}</h2></div>
-        <span class="meta">${esc(h.label || L.shortDate(h.date))} · ${esc(wingName(h.wing))}${done ? ` · ${done}/${stops.length}` : ''}</span>
+      <div class="hall-head">
+        <div class="line">
+          <div class="hall-title">${imgFor('hall-' + h.id) ? `<span class="thumb print photo-fx ${st === 'locked' ? 'faded' : ''}"><img src="${imgFor('hall-' + h.id)}" alt="" loading="lazy"></span>` : ''}<h2>${esc(h.title)}</h2></div>
+          <span class="meta">${wingLine(h.wing)}<br><span class="num">${done}/${stops.length}</span> · <span class="num">${esc(h.label || L.shortDate(h.date))}</span></span>
+        </div>
+        <div class="wing-rule"></div>
       </div>
       ${st === 'locked' ? `<div class="lock">${ico('lock')}<span>נפתח ב${esc(L.hebrewDate(h.date))}. ${esc(h.tease || '')}</span></div>` :
-        `<div class="frames">${stops.map((s, i) => frame(s, i)).join('')}</div>`}
+        `<div class="frames">${stops.map((s) => frame(s)).join('')}</div>`}
     </section>`;
   }
 
-  function frame(s, i) {
+  function frame(s) {
     const ex = P().exhibits[s.id];
     const ghost = imgFor(s.id) ? `<img class="ghost" src="${imgFor(s.id)}" alt="" loading="lazy">` : '';
     if (!ex) return `<a class="frame" href="#/stop/${esc(s.id)}">${ghost}<span class="fname">${esc(s.name)}</span></a>`;
-    const tilt = `style="--tilt:${tilts[(i || 0) % tilts.length]}deg"`;
     let inner = '';
     if (ex.type === 'photo' || ex.type === 'sketch') inner = `<img alt="" data-media="${esc(s.id)}"><span class="fname">${esc(ex.title || s.name)}</span>`;
     else if (ex.type === 'color') inner = `<span class="swatch" style="background:${esc(ex.color)}"></span><span class="fname">${esc(ex.colorName || ex.title || s.name)}</span>`;
     else if (ex.type === 'find') inner = `<span class="ftext">✓</span><span class="fname">${esc(ex.title || s.name)}</span>`;
-    else inner = `<span class="ftext">${esc((ex.text || ex.title || '').slice(0, 80))}</span>`;
-    return `<a class="frame hung ${esc(ex.type)}" href="#/stop/${esc(s.id)}" data-stop="${esc(s.id)}" ${tilt}><span class="pin"></span>${inner}</a>`;
+    else inner = `<span class="ftext">${esc((ex.text || ex.title || '').slice(0, 90))}</span>`;
+    return `<a class="frame hung ${esc(ex.type)}" href="#/stop/${esc(s.id)}" data-stop="${esc(s.id)}"><span class="nail"></span>${inner}</a>`;
   }
 
   async function fillThumbs() {
@@ -326,6 +367,7 @@
       const url = await S.mediaGet(mediaKey(img.dataset.media));
       if (url) img.src = url;
     }));
+    matSmallImages();
   }
 
   function drawThread(animateLast) {
@@ -335,16 +377,16 @@
     const wr = wall.getBoundingClientRect();
     svg.setAttribute('viewBox', `0 0 ${Math.round(wr.width)} ${Math.round(wr.height)}`);
     svg.setAttribute('width', wr.width); svg.setAttribute('height', wr.height);
-    if (frames.length === 0) { svg.innerHTML = ''; return; }
-    const pts = frames.map((f) => { const r = f.getBoundingClientRect(); return { x: r.left - wr.left + r.width / 2, y: r.top - wr.top + 2 }; });
-    let d = `M ${pts[0].x} ${pts[0].y}`;
+    if (frames.length < 2) { svg.innerHTML = ''; return; }
+    // nail-to-nail, with the thread sagging between them
+    const pts = frames.map((f) => { const r = f.getBoundingClientRect(); return { x: r.left - wr.left + r.width / 2, y: r.top - wr.top - 8 }; });
+    let d = `M ${pts[0].x.toFixed(1)} ${pts[0].y.toFixed(1)}`;
     for (let i = 1; i < pts.length; i++) {
       const a = pts[i - 1], b = pts[i];
-      const cx = (a.x + b.x) / 2, sag = Math.min(40, Math.abs(b.x - a.x) * 0.25 + 10);
-      d += ` Q ${cx} ${(a.y + b.y) / 2 + sag} ${b.x} ${b.y}`;
+      const cx = (a.x + b.x) / 2, cy = (a.y + b.y) / 2 + 14 + Math.min(26, Math.abs(b.x - a.x) * 0.12);
+      d += ` Q ${cx.toFixed(1)} ${cy.toFixed(1)} ${b.x.toFixed(1)} ${b.y.toFixed(1)}`;
     }
-    const last = pts[pts.length - 1];
-    svg.innerHTML = `<path d="${d}" class="${animateLast ? 'new' : ''}"></path><circle cx="${pts[0].x}" cy="${pts[0].y}" r="3"></circle><circle cx="${last.x}" cy="${last.y}" r="3"></circle>`;
+    svg.innerHTML = `<path class="shade" d="${d}"></path><path class="stitch ${animateLast ? 'new' : ''}" d="${d}"></path>`;
   }
   window.addEventListener('resize', () => drawThread(false));
 
@@ -360,11 +402,11 @@
     const littleDone = !!(P().little && P().little[s.id]);
     const head = `
       ${backLink(query && query.from === 'museum' ? '#/museum' : '#/', 'חזרה')}
-      ${imgFor(s.id) ? `<figure class="sheet-photo ${st === 'locked' ? 'locked' : ''}"><img src="${imgFor(s.id)}" alt="${esc(s.name)}"></figure>${creditLine(s.id)}` : ''}
-      <header class="sheet-head wing-band" data-wing="${esc(wing)}">
-        <p class="eyebrow"><span class="wing-dot"></span>${esc(hall.title)} · ${esc(L.hebrewDate(hall.date))}${s.time ? ` · <span class="latin">${esc(s.time)}</span>` : s.when ? ` · ${esc(s.when)}` : ''}</p>
+      <header class="sheet-head" data-wing="${esc(wing)}">
+        ${imgFor(s.id) ? `<figure class="sheet-photo print photo-fx ${st === 'locked' ? 'faded' : ''}"><img src="${imgFor(s.id)}" alt="${esc(s.name)}"></figure>${creditLine(s.id)}` : ''}
+        <p class="meta-line">${wingLine(wing)}<span aria-hidden="true">·</span><span>${esc(L.hebrewDate(hall.date))}</span>${s.time ? `<span aria-hidden="true">·</span><span class="num">${esc(s.time)}</span>` : s.when ? `<span aria-hidden="true">·</span><span>${esc(s.when)}</span>` : ''}</p>
         <h1>${esc(s.name)}</h1>
-        <p class="place">${latin(s.place)}</p>
+        <p class="place latin">${esc(s.place)}</p>
       </header>
       <div class="hook"><p class="wall-text">${esc(s.hook)}</p></div>`;
 
@@ -377,10 +419,10 @@
       view.innerHTML = `${head}
         <div class="section-title"><h2>לתלות מוצג</h2></div>
         <p class="small muted">${V('בוחרת אחת. אין נכון ולא נכון, יש מה שמתאים לך עכשיו.')}</p>
-        <div class="choices">${(s.missions || []).map(vm).map((m) => `
+        <div class="choices" data-wing="${esc(wing)}">${(s.missions || []).map(vm).map((m) => `
           <button class="choice" data-m="${esc(m.id)}">
-            <span class="glyph">${ico(m.type)}</span>
-            <span><span class="ctitle">${esc(m.title)}</span><span class="cprompt">${esc(m.prompt)}</span></span>
+            <span class="glyph">${ico('g_' + m.type)}</span>
+            <span><span class="ctitle">${esc(m.title)}</span><span class="cprompt">${esc(m.prompt)}</span>${COST[m.type] ? `<span class="cost">${esc(COST[m.type])}</span>` : ''}</span>
           </button>`).join('')}</div>
         ${littleBlock(s, littleDone)}`;
       view.querySelectorAll('.choice').forEach((b) => b.addEventListener('click', () => go(`#/stop/${s.id}/m/${b.dataset.m}`)));
@@ -403,11 +445,11 @@
         </div>
       </section>
       <section class="drawer ${isNew ? '' : 'open'}" id="drawer">
-        <button class="knob" aria-expanded="${isNew ? 'false' : 'true'}"><span class="handle"></span><span class="ktext">המגירה הסודית</span></button>
-        <div class="inner"><div class="content">
+        <button class="knob" aria-expanded="${isNew ? 'false' : 'true'}"><span class="handle"></span><span class="ktext">המגירה הסודית</span><span class="khint">${isNew ? 'למשוך' : ''}</span></button>
+        <div class="inner"><div class="content"><div class="sheet torn-top">
           <p>${esc(s.secret)}</p>
-          ${s.ask ? `<p class="ask muted small">${esc(s.ask)}</p>` : ''}
-        </div></div>
+          ${s.ask ? `<p class="ask">${esc(s.ask)}</p>` : ''}
+        </div></div></div>
       </section>
       ${littleBlock(s, littleDone)}
       <div class="row" style="margin-top:22px">
@@ -419,8 +461,9 @@
     drawer.querySelector('.knob').addEventListener('click', () => {
       const open = drawer.classList.toggle('open');
       drawer.querySelector('.knob').setAttribute('aria-expanded', open);
+      const hint = drawer.querySelector('.khint'); if (hint) hint.textContent = '';
     });
-    if (isNew) setTimeout(() => { drawer.classList.add('open'); drawer.querySelector('.knob').setAttribute('aria-expanded', 'true'); }, 700);
+    if (isNew) setTimeout(() => { drawer.classList.add('open'); drawer.querySelector('.knob').setAttribute('aria-expanded', 'true'); const h = drawer.querySelector('.khint'); if (h) h.textContent = ''; }, 700);
     view.querySelector('#redo').addEventListener('click', async () => {
       if (!confirm('להוריד את המוצג הזה מהקיר ולבחור מחדש? המוצג הנוכחי יימחק.')) return;
       delete P().exhibits[s.id]; await S.mediaDel(mediaKey(s.id)); save(); render();
@@ -445,10 +488,11 @@
   }
 
   function mediaBlock(s, ex) {
-    if (ex.type === 'photo' || ex.type === 'sketch') return `<div class="media"><img alt="${esc(ex.title || s.name)}" data-media="${esc(s.id)}"></div>`;
+    if (ex.type === 'photo') return `<div class="media print photo-fx"><img alt="${esc(ex.title || s.name)}" data-media="${esc(s.id)}"></div>`;
+    if (ex.type === 'sketch') return `<div class="media print"><img alt="${esc(ex.title || s.name)}" data-media="${esc(s.id)}"></div>`;
     if (ex.type === 'color') return `<div class="media color"><span class="swatch" style="background:${esc(ex.color)}"></span></div>`;
-    if (ex.type === 'find') return `<div class="media find"><ul style="margin:0;padding-inline-start:20px">${(ex.found || []).map((f) => `<li>${esc(f)}</li>`).join('')}</ul>${ex.text ? `<p style="margin-top:8px">${esc(ex.text)}</p>` : ''}</div>`;
-    return `<div class="media text"><p>${esc(ex.text)}</p></div>`;
+    if (ex.type === 'find') return `<div class="media find"><ul style="margin:0;padding-inline-start:20px">${(ex.found || []).map((f) => `<li>${esc(f)}</li>`).join('')}</ul>${ex.text ? `<p style="margin-top:10px">${esc(ex.text)}</p>` : ''}</div>`;
+    return `<div class="media words"><p>${esc(ex.text)}</p></div>`;
   }
 
   // ---------- mission panel ----------
@@ -484,30 +528,38 @@
 
     if (m.type === 'photo') {
       body.innerHTML = `<label class="photo-drop" id="drop">
-          <span class="drop-label">${ico('photo')}<span>לצלם או לבחור תמונה</span><span class="hint">התמונה נשמרת בטלפון הזה בלבד, מוקטנת.</span></span>
+          <span class="inner-mat"></span>
+          <span class="drop-label">${ico('g_photo')}<span class="fake-btn">לצלם</span><span class="hint">נשמרת בטלפון הזה בלבד.</span></span>
           <input type="file" accept="image/*" id="file">
         </label>`;
       view.querySelector('#file').addEventListener('change', async (e) => {
         const f = e.target.files && e.target.files[0]; if (!f) return;
         try {
           pendingImage = await S.compressImage(f, 1280, 0.82);
-          view.querySelector('#drop').innerHTML = `<img src="${pendingImage}" alt=""><input type="file" accept="image/*" id="file2">`;
+          const drop = view.querySelector('#drop');
+          drop.classList.add('print', 'photo-fx');
+          drop.innerHTML = `<img src="${pendingImage}" alt=""><input type="file" accept="image/*" id="file2">`;
           view.querySelector('#file2').addEventListener('change', (ev) => { e.target.files = ev.target.files; e.target.dispatchEvent(new Event('change')); });
         } catch (err) { toast('לא הצלחתי לקרוא את התמונה. אפשר לנסות שוב או לבחור מילים במקום.'); }
       });
     } else if (m.type === 'sketch') {
       body.innerHTML = `
         <div class="sketch-tools">
-          <button class="pen" data-c="#1A1F2B" style="background:#1A1F2B" aria-pressed="true" aria-label="שחור"></button>
-          <button class="pen" data-c="#C4122F" style="background:#C4122F" aria-pressed="false" aria-label="אדום"></button>
-          <button class="pen" data-c="#2B4C9B" style="background:#2B4C9B" aria-pressed="false" aria-label="כחול"></button>
-          <button class="pen" data-c="#D9642A" style="background:#D9642A" aria-pressed="false" aria-label="כתום"></button>
-          <button class="w" data-w="2" aria-pressed="false" aria-label="דק"><i style="width:14px;height:2px"></i></button>
-          <button class="w" data-w="4" aria-pressed="true" aria-label="בינוני"><i style="width:14px;height:4px"></i></button>
-          <button class="w" data-w="9" aria-pressed="false" aria-label="עבה"><i style="width:14px;height:8px"></i></button>
-          <span style="flex:1"></span>
-          <button class="btn ghost" id="undo">בטל</button>
-          <button class="btn ghost" id="clear">נקה</button>
+          <span class="group">
+            <button class="pen" data-c="#2A211C" style="background:#2A211C" aria-pressed="true" aria-label="שחור"></button>
+            <button class="pen" data-c="#C0241E" style="background:#C0241E" aria-pressed="false" aria-label="אדום"></button>
+            <button class="pen" data-c="#2E5E8C" style="background:#2E5E8C" aria-pressed="false" aria-label="כחול"></button>
+            <button class="pen" data-c="#A05A05" style="background:#A05A05" aria-pressed="false" aria-label="חום"></button>
+          </span>
+          <span class="group">
+            <button class="w" data-w="2" aria-pressed="false" aria-label="דק"><i style="width:14px;height:2px"></i></button>
+            <button class="w" data-w="4" aria-pressed="true" aria-label="בינוני"><i style="width:14px;height:4px"></i></button>
+            <button class="w" data-w="9" aria-pressed="false" aria-label="עבה"><i style="width:14px;height:8px"></i></button>
+          </span>
+          <span class="group end">
+            <button class="btn ghost" id="undo">בטל</button>
+            <button class="btn ghost" id="clear">נקה</button>
+          </span>
         </div>
         <div class="sketch-wrap" id="pad"></div>
         ${m.blind ? `<label class="toggle" style="border:0"><span>מצב עיוור: המסך מכוסה בזמן שאת מציירת</span><input type="checkbox" id="blind" checked></label>` : ''}`;
@@ -518,7 +570,7 @@
       view.querySelector('#clear').addEventListener('click', () => pad.clear());
       const blind = view.querySelector('#blind'); if (blind) blind.addEventListener('change', () => pad.setBlind(blind.checked));
     } else if (m.type === 'words') {
-      body.innerHTML = `<div class="field"><textarea class="input" id="words" maxlength="600" placeholder="${esc(m.placeholder || V('כותבת פה'))}"></textarea><div class="count" id="wc"></div></div>`;
+      body.innerHTML = `<div class="field"><textarea class="input ruled" id="words" maxlength="600" placeholder="${esc(m.placeholder || V('כותבת פה'))}" rows="4"></textarea><div class="count" id="wc"></div></div>`;
       const ta = view.querySelector('#words'); const wc = view.querySelector('#wc');
       const upd = () => { const words = ta.value.trim().split(/\s+/).filter(Boolean).length; wc.textContent = m.wordLimit ? `${words} / ${m.wordLimit} מילים` : `${words} מילים`; };
       ta.addEventListener('input', upd); upd();
@@ -527,11 +579,14 @@
       body.innerHTML = `
         <div class="color-pick">
           <input type="color" id="colorIn" value="${esc(presets[0])}" aria-label="בחירת צבע">
-          <div class="field"><label for="colorName">${V('איך את קוראת לצבע הזה?')}</label><input class="input" id="colorName" maxlength="40" placeholder="${esc(m.namePlaceholder || 'למשל: כחול של שלט רחוב אחרי גשם')}"></div>
+          <div class="field"><label for="colorName">${V('איך את קוראת לצבע הזה?')}</label><input class="input hand" id="colorName" maxlength="40" placeholder="${esc(m.namePlaceholder || 'למשל: כחול של שלט רחוב אחרי גשם')}"><span class="hexout" id="hexout"></span></div>
         </div>
         <div class="swatches">${presets.map((c) => `<button type="button" data-c="${c}" style="background:${c}" aria-label="${c}"></button>`).join('')}</div>
         <p class="hint">אפשר לכוון בגלגל הצבעים עד שזה בדיוק הצבע שראית. השם חשוב יותר מהדיוק.</p>`;
-      view.querySelectorAll('.swatches button').forEach((b) => b.addEventListener('click', () => { view.querySelector('#colorIn').value = b.dataset.c; }));
+      const ci = view.querySelector('#colorIn'), hx = view.querySelector('#hexout');
+      const showHex = () => { hx.textContent = ci.value.toUpperCase(); };
+      ci.addEventListener('input', showHex); showHex();
+      view.querySelectorAll('.swatches button').forEach((b) => b.addEventListener('click', () => { ci.value = b.dataset.c; showHex(); }));
     } else if (m.type === 'find') {
       body.innerHTML = `<div class="checks">${(m.items || []).map((it, i) => `<label class="check"><input type="checkbox" data-i="${i}"><span>${esc(it)}</span></label>`).join('')}</div>
         <div class="field"><label for="findNote">${esc(m.noteLabel || 'מה גילית בדרך?')}</label><textarea class="input" id="findNote" maxlength="400" style="min-height:80px" placeholder="${esc(m.placeholder || '')}"></textarea></div>`;
@@ -581,8 +636,8 @@
       </section>
       <div class="envlist">${list.map((e) => {
         const st = L.envelopeStatus(e, now(), p.envelopes, settings());
-        const when = st === 'sealed' ? `${esc(L.countdown(now(), e.openAt))}${e.where ? ' · ' + esc(e.where) : ''}` : st === 'ready' ? 'מחכה לך. אפשר לפתוח.' : `נפתחה · ${esc(L.hebrewDate(e.openAt))}`;
-        const inner = `<span class="seal">${esc(e.seal || '✉')}</span><span><span class="etitle">${st === 'sealed' ? esc(e.title) : esc(e.title)}</span><br><span class="ewhen">${when}</span></span><span class="arrow">${st === 'sealed' ? ico('lock') : ico('back')}</span>`;
+        const when = st === 'sealed' ? `נפתחת ${esc(L.countdown(now(), e.openAt))}, ${esc(L.shortDate(e.openAt))}${e.where ? ' · ' + esc(e.where) : ''}` : st === 'ready' ? V('מחכה לך. אפשר לפתוח.') : `נפתחה · ${esc(L.hebrewDate(e.openAt))}`;
+        const inner = `<span class="seal">${esc(e.seal || '✉')}</span><span><span class="etitle">${esc(e.title)}</span><span class="ewhen">${when}</span></span><span class="arrow">${st === 'sealed' ? ico('lock') : ico('back')}</span>`;
         return st === 'sealed' ? `<button class="env sealed" data-e="${esc(e.id)}" style="text-align:start">${inner}</button>` : `<a class="env ${st}" href="#/envelope/${esc(e.id)}">${inner}</a>`;
       }).join('')}</div>`;
     view.querySelectorAll('button.env.sealed').forEach((b) => b.addEventListener('click', () => {
@@ -607,7 +662,7 @@
         <p class="eyebrow">${esc(L.hebrewDate(e.openAt))}${e.where ? ` · ${esc(e.where)}` : ''}</p>
         <h1>${esc(e.title)}</h1>
       </header>
-      <section class="letter">
+      <section class="letter torn-top">
         ${e.body.split('\n\n').map((para) => `<p class="ltext">${esc(para)}</p>`).join('')}
         ${e.reveals ? `<div class="from-past"><p class="fp-eyebrow">${esc(e.revealLabel || 'מה שכתבת אז:')}</p><p class="fp-text">${revealed ? esc(revealed) : '(לא כתבת אז. גם זה בסדר. אפשר לכתוב עכשיו מה היית כותבת.)'}</p></div>` : ''}
       </section>
@@ -675,8 +730,8 @@
         <button class="btn thread" id="bind">לכרוך</button>
       </div>` : ''}
       <section class="catalogue" id="catalogue">
-        <div class="page cover">
-          <div class="mosaic" id="mosaic">${mosaicImgs(order, p)}</div>
+        <div class="page cover torn-top">
+          <div class="stack-photos" id="mosaic">${mosaicImgs(order, p)}</div>
           <div class="em">${esc(p.emblem)}</div>
           <p class="eyebrow">קטלוג התערוכה</p>
           <h1>המוזיאון של ${esc(p.name)}</h1>
@@ -690,7 +745,7 @@
             const hs = halls.filter((h) => h.wing === w.id);
             const cnt = hs.reduce((a, h) => a + stopsOfHall(h.id).filter((s) => p.exhibits[s.id]).length, 0);
             const hi = hs.map((h) => imgFor('hall-' + h.id)).find(Boolean);
-            return `<div class="wing" data-wing="${esc(w.id)}"><span>${hi ? `<img src="${hi}" alt="">` : '<span class="wing-dot"></span>'}<strong>${esc(w.name)}</strong><br><span class="halls">${hs.map((h) => esc(h.title)).join(' · ')}</span></span><span class="num">${cnt}</span></div>`;
+            return `<div class="wing" data-wing="${esc(w.id)}"><span>${hi ? `<span class="print photo-fx"><img src="${hi}" alt="" loading="lazy"></span>` : '<span class="wing-dot"></span>'}<strong>${esc(w.name)}</strong><br><span class="halls">${hs.map((h) => esc(h.title)).join(' · ')}</span></span><span class="num">${cnt}</span></div>`;
           }).join('')}</div>
         </div>
         ${order.length ? `<div class="page">
@@ -738,16 +793,16 @@
   }
 
   function mosaicImgs(order, p) {
-    const own = order.filter((id) => p.exhibits[id].hasImage).slice(0, 4).map((id) => `<img alt="" data-media="${esc(id)}">`);
-    const halls = ['d17', 'd21', 'd23', 'd26'].map((h) => imgFor('hall-' + h)).filter(Boolean).map((src) => `<img alt="" src="${src}">`);
-    return own.concat(halls).slice(0, 4).join('');
+    const own = order.filter((id) => p.exhibits[id].hasImage).slice(0, 3).map((id) => `<span class="print photo-fx"><img alt="" data-media="${esc(id)}"></span>`);
+    const halls = ['d17', 'd21', 'd26'].map((h) => imgFor('hall-' + h)).filter(Boolean).map((src) => `<span class="print photo-fx"><img alt="" src="${src}"></span>`);
+    return own.concat(halls).slice(0, 3).join('');
   }
 
   function renderCredits() {
     view.innerHTML = `
       ${backLink('#/settings', 'הגדרות')}
       <section class="hero"><p class="date">${CREDITS.length} תצלומים</p><h1>תצלומים ורשיונות</h1><p class="sub">התמונות של המקומות באפליקציה מגיעות מוויקישיתוף, ברשיונות חופשיים. התמונות שלך נשארות שלך.</p></section>
-      <div class="credits-list">${CREDITS.map((c) => `<div class="row" style="display:flex;gap:10px;align-items:center"><img src="img/${esc(c.id)}.jpg" alt="" loading="lazy"><span><strong>${esc(c.title)}</strong><br>${esc(c.artist || 'ויקישיתוף')} · <a href="${esc(c.page)}" target="_blank" rel="noopener">${esc(c.license)}</a></span></div>`).join('')}</div>`;
+      <div class="credits-list">${CREDITS.map((c) => `<div class="row" style="display:flex;gap:12px;align-items:center"><span class="print photo-fx"><img src="img/${esc(c.id)}.jpg" alt="" loading="lazy"></span><span><strong>${esc(c.title)}</strong><br>${esc(c.artist || 'ויקישיתוף')} · <a href="${esc(c.page)}" target="_blank" rel="noopener">${esc(c.license)}</a></span></div>`).join('')}</div>`;
   }
 
   // ---------- saving outside the phone: share sheet (Drive, WhatsApp, Files) or download ----------
@@ -795,7 +850,7 @@
     try { css = await (await fetch('css/app.css')).text(); pcss = await (await fetch('css/print.css')).text(); } catch (e) { /* fonts and layout fall back to defaults */ }
     const p = P();
     const html = `<!doctype html><html lang="he" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${esc('המוזיאון של ' + p.name)}</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;500;700;900&family=Rubik:wght@400;500;700&family=Bellefair&family=Playpen+Sans+Hebrew:wght@400;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Assistant:wght@400..800&family=Suez+One&family=Karantina:wght@700&family=Gveret+Levin&family=Instrument+Serif:ital@0;1&family=Doto:wght@400..700&display=swap">
 <style>${css}\n@media print{${pcss}}\nbody{padding:16px 16px 40px}.view{padding:0}</style></head>
 <body><main class="view"><p class="eyebrow" style="text-align:center;margin-bottom:10px">אוצרת · ${esc(C.trip.title)} · ${esc(C.trip.datesLabel)}</p>${clone.outerHTML}<p class="hint" style="text-align:center;margin-top:24px">קובץ עצמאי. נפתח בכל דפדפן, ומודפס ל־PDF מתפריט ההדפסה.</p></main></body></html>`;
     return new Blob([html], { type: 'text/html' });
@@ -839,7 +894,7 @@
           <p class="ptitle">תצוגה</p>
           <div class="body">
             <div class="field"><label for="theme">מראה</label>
-              <select class="input" id="theme"><option value="auto" ${(state.theme || 'auto') === 'auto' ? 'selected' : ''}>לפי המכשיר</option><option value="light" ${state.theme === 'light' ? 'selected' : ''}>בהיר</option><option value="dark" ${state.theme === 'dark' ? 'selected' : ''}>כהה</option></select></div>
+              <select class="input" id="theme"><option value="auto" ${(state.theme || 'auto') === 'auto' ? 'selected' : ''}>לפי המכשיר</option><option value="light" ${state.theme === 'light' ? 'selected' : ''}>בהיר</option><option value="dark" ${state.theme === 'dark' ? 'selected' : ''}>כהה</option><option value="sun" ${state.theme === 'sun' ? 'selected' : ''}>שמש (ניגודיות גבוהה)</option></select></div>
           </div>
         </section>
         <section class="panel">
@@ -869,7 +924,7 @@
     view.querySelector('#sSave').addEventListener('click', () => { p.name = view.querySelector('#sName').value.trim() || p.name; p.emblem = emblem; save(); toast('נשמר.'); render(); });
     view.querySelectorAll('[data-switch]').forEach((b) => b.addEventListener('click', () => { state.activeProfile = b.dataset.switch; save(); render(); }));
     view.querySelector('#addProfile').addEventListener('click', () => { state.activeProfile = null; save(); go('#/'); render(); });
-    view.querySelector('#theme').addEventListener('change', (e) => { state.theme = e.target.value; save(); applyTheme(); });
+    view.querySelector('#theme').addEventListener('change', (e) => { state.theme = e.target.value; state.themeBase = e.target.value === 'sun' ? (state.themeBase || 'auto') : e.target.value; save(); applyTheme(); render(); });
     view.querySelector('#openAll').addEventListener('change', (e) => { p.settings.openAll = e.target.checked; save(); toast(e.target.checked ? 'הכל פתוח.' : 'חזרנו לתאריכים.'); });
     view.querySelector('#previewGo').addEventListener('click', () => {
       const v = view.querySelector('#previewDate').value; if (!v) return;

@@ -1,15 +1,59 @@
-/* אוצרת — catalogue print layout */
+/* אוצרת — the catalogue as a printed keepsake.
+   Loaded with media="print", and inlined inside @media print by the keepsake export.
+   The screen's paper texture does not belong on paper: ink on white, photographs at full fidelity. */
+
 @page { size: A4; margin: 16mm 14mm; }
-html, body { background: #fff !important; color: #111 !important; }
-.topbar, .tabs, .toast, .no-print, .banner, .bind-cta, .skip { display: none !important; }
-body { padding: 0 !important; font-size: 12pt; }
-.view { max-width: none; padding: 0; }
-.catalogue .page { border: 0; box-shadow: none; padding: 0; margin: 0; break-after: page; page-break-after: always; background: #fff; }
+
+:root {
+  --paper: #FFFFFF; --paper-2: #FFFFFF; --card: #FFFFFF;
+  --ink: #1A1512; --ink-2: #3A322A; --muted: #55493F;
+  --line: #D8CCB8; --line-2: #B7A891;
+  --thread: #A8281A; --thread-soft: #F3E2DE;
+  --print-mat: #FFFFFF;
+  --grain: none; --laid: none; --photo-wash: none; --top-light: none;
+  --sh-1: none; --sh-2: none; --sh-3: none; --inset-work: none;
+}
+
+html, body { background: #fff !important; color: var(--ink) !important; }
+body { padding: 0 !important; font-size: 10.5pt; line-height: 1.6; }
+body::before { display: none !important; }
+
+.topbar, .tabs, .toast, .no-print, .banner, .bind-cta, .skip, .nudge, .drawer, .choices, .little { display: none !important; }
+.view { max-width: none; padding: 0; margin: 0; }
+
+h1 { font-size: 20pt; }
+h2 { font-size: 15pt; }
+h3 { font-size: 12.5pt; }
+
+/* photographs print at full fidelity: no wash, no bloom, no grain */
+.print { padding: 0; border: 0.5pt solid var(--line-2); box-shadow: none; border-radius: 0; }
+.print::after, .print::before { display: none !important; }
+.print > img, .print img { filter: none !important; max-height: 120mm; }
+.tape::after { display: none !important; }
+.torn-top { -webkit-mask-image: none !important; mask-image: none !important; }
+
+.catalogue .page {
+  border: 0; box-shadow: none; padding: 0; margin: 0; background: #fff;
+  break-after: page; page-break-after: always;
+}
 .catalogue .page:last-child { break-after: auto; page-break-after: auto; }
-.catalogue .cover { min-height: 60vh; display: flex; flex-direction: column; justify-content: center; }
-.catalogue .item { break-inside: avoid; page-break-inside: avoid; padding: 14px 0; border-bottom: 1px solid #ddd; }
-.catalogue .item .media img { max-height: 110mm; border-color: #eee; }
-.catalogue .item .media .swatch { height: 40mm; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-.chip .c, .swatch, .wing-dot, .bound-stamp { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-.fragment::before, .threadline::before { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.catalogue .cover { min-height: 55vh; display: flex; flex-direction: column; justify-content: center; text-align: center; }
+.catalogue .cover .stack-photos { height: 90mm; }
+.catalogue .cover .stack-photos .print { width: 55%; }
+
+.catalogue .item { break-inside: avoid; page-break-inside: avoid; padding: 6mm 0; border-bottom: 0.5pt solid var(--line); }
+.catalogue .item .media img { max-height: 110mm; }
+.catalogue .item .media.color .swatch { height: 34mm; }
+.catalogue .item .ltitle { font-size: 12pt; }
+.catalogue .item .lmeta, .lmeta { font-size: 8.5pt; }
+.catalogue .wing-open { break-before: page; page-break-before: always; }
+
+.threadline::before { border-inline-start-color: var(--thread); }
+.fragment::before { box-shadow: 0 0 0 3px #fff, 0 0 0 4px var(--thread); }
+
+/* only the things that ARE colour force their colour */
+.wing-rule, .wing-dot, .chip .c, .swatch, .bound-stamp, .frame.hung .swatch {
+  -webkit-print-color-adjust: exact; print-color-adjust: exact;
+}
+
 a { text-decoration: none; color: inherit; }

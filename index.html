@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>אוצרת</title>
   <meta name="description" content="המוזיאון האישי שלך לטיול: פריז, לונדון, דיסני ולה סיוטה, 16–29 בספטמבר 2026">
-  <meta name="theme-color" content="#F2F3EF" media="(prefers-color-scheme: light)">
-  <meta name="theme-color" content="#1B1D22" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#F7F2E9" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#17130F" media="(prefers-color-scheme: dark)">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -16,7 +16,7 @@
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;500;700;900&family=Rubik:wght@400;500;700&family=Bellefair&family=Playpen+Sans+Hebrew:wght@400;600&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Assistant:wght@400..800&family=Suez+One&family=Karantina:wght@700&family=Gveret+Levin&family=Instrument+Serif:ital@0;1&family=Doto:wght@400..700&display=swap">
   <link rel="stylesheet" href="css/app.css">
   <link rel="stylesheet" href="css/print.css" media="print">
 </head>
@@ -24,7 +24,10 @@
   <a class="skip" href="#view">לתוכן</a>
   <header class="topbar" id="topbar">
     <a class="brand" href="#/" id="brand">אוצרת</a>
-    <a class="iconbtn" href="#/settings" aria-label="הגדרות" id="settingsBtn"></a>
+    <span class="actions">
+      <button class="iconbtn" type="button" id="sunBtn" aria-label="מצב שמש, ניגודיות גבוהה" aria-pressed="false"></button>
+      <a class="iconbtn" href="#/settings" aria-label="הגדרות" id="settingsBtn"></a>
+    </span>
   </header>
   <main id="view" class="view" tabindex="-1" aria-live="polite"></main>
   <nav class="tabs" id="tabs" aria-label="ניווט">

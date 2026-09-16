@@ -183,7 +183,7 @@
   window.addEventListener('hashchange', render);
   document.addEventListener('click', (e) => { if (e.target.closest && e.target.closest('#sunBtn')) toggleSun(); });
 
-  const bannerHtml = () => (showBanner || !S.storageOk) ? `<div class="banner">${V('הדפדפן לא מאפשר לשמור פה. המוזיאון יעבוד, אבל לא יישמר אחרי סגירה. נסי לפתוח לא בחלון פרטי.')}</div>` : '';
+  const bannerHtml = () => (showBanner || !S.storageOk) ? `<div class="banner">${V('הדפדפן לא מאפשר לשמור כאן. המוזיאון יעבוד, אבל לא יישמר אחרי סגירה. נסי לפתוח בחלון רגיל, לא פרטי.')}</div>` : '';
   const backLink = (href, text) => `<a class="back" href="${href}">${ico('back')}<span>${esc(text)}</span></a>`;
 
   // ---------- onboarding ----------
@@ -213,7 +213,7 @@
           <div class="emblems" id="obEmblems">${EMBLEMS.map((e) => `<button type="button" data-e="${e}" aria-pressed="${e === st.emblem}">${e}</button>`).join('')}</div>
         </div>
         <button class="btn thread block" id="obGo">לפתוח את המוזיאון</button>
-        <p class="hint">הכל נשמר רק בטלפון הזה. אין ניקוד, אין תחרות. כמה מוזיאונים במשפחה יהיו שונים לגמרי, וזה הרעיון.</p>
+        <p class="hint">הכל נשמר רק בטלפון הזה. אין ניקוד ואין תחרות. גם אם כולם במשפחה יעשו את אותן תחנות, יֵצאו מוזיאונים שונים לגמרי. זה כל הרעיון.</p>
       </section>`;
     view.querySelector('#obVoice').addEventListener('click', (e) => {
       const b = e.target.closest('button'); if (!b) return;
@@ -262,19 +262,19 @@
         <h1>${esc(hall.title)}</h1>
         ${hall.sub ? `<p class="sub">${esc(hall.sub)}</p>` : ''}
       </section>
-      ${beforeTrip ? `<div class="banner">הטיול מתחיל ב־${esc(L.shortDate(C.trip.start))}. עד אז אפשר להסתכל במוזיאון הריק, לפתוח את ההגדרות, ולתת שם. האולמות נפתחים לפי הימים.</div>` : ''}
+      ${beforeTrip ? `<div class="banner">הטיול מתחיל ב־${esc(L.shortDate(C.trip.start))}. עד אז אפשר להסתכל במוזיאון הריק, לפתוח את ההגדרות, ולבחור שם. האולמות נפתחים לפי הימים.</div>` : ''}
       ${afterTrip ? `<div class="banner">הטיול נגמר, המוזיאון פתוח לתמיד. הזמן <a href="#/catalogue">לכרוך את הקטלוג</a>.</div>` : ''}
       <section class="daycard ${card ? '' : 'undrawn'} ${justDrew ? 'flip' : ''}" id="daycard">
         ${card ? `<span class="knot" aria-hidden="true">${ico('knot')}</span>` : ''}
         <p class="eyebrow">קלף היום</p>
         ${card ? `<p class="text">${esc(V(card.text))}</p>
           <div class="actions">${cardState.redrawn ? `<span class="hint">זה הקלף. מחר יש חדש.</span>` : `<button class="btn ghost" id="redraw">להחליף פעם אחת</button>`}</div>`
-        : `<p class="text muted">מגבלה יצירתית אחת לכל היום. שולפים קלף בבוקר, והעין מתחילה לחפש.</p>
+        : `<p class="text muted">מגבלה יצירתית אחת לכל היום. שולפים קלף בבוקר, והעין מתחילה לחפש לבד.</p>
           <div class="actions"><button class="btn secondary" id="draw">לשלוף קלף</button></div>`}
       </section>
       ${nudge ? `<section class="nudge" id="nudge"><p><strong>לשמור את היום?</strong><br><span class="small">${doneToday === 1 ? 'מוצג חדש אחד' : doneToday + ' מוצגים חדשים'} על הקיר. קובץ גיבוי אחד לדרייב, לוואטסאפ או לתיקיית הקבצים, וזה שמור גם אם הטלפון נעלם.</span></p><button class="btn secondary" id="nudgeShare">${ico('download')} לשמור / לשתף</button></section>` : ''}
       <div class="section-title"><h2>הכרטיסים של היום</h2></div>
-      ${stops.length ? `<div class="stoplist">${stops.map((s) => stopItem(s)).join('')}</div>` : `<div class="empty">אין תחנות רשומות ליום הזה.</div>`}
+      ${stops.length ? `<div class="stoplist">${stops.map((s) => stopItem(s)).join('')}</div>` : `<div class="empty">אין תחנות ביום הזה.</div>`}
       ${nextEnv ? `<div class="section-title"><h2>מעטפות</h2></div>
         <a class="env ${nextEnv.st}" href="${nextEnv.st === 'ready' ? `#/envelope/${nextEnv.e.id}` : '#/envelopes'}">
           <span class="seal">${esc(nextEnv.e.seal || '✉')}</span>
@@ -329,7 +329,7 @@
       <section class="hero museum">
         <p class="date">${esc(C.trip.datesLabel)}</p>
         <h1>המוזיאון של ${esc(p.name)}</h1>
-        <p class="sub">${count === 0 ? 'הקירות עדיין ריקים. כל מוצג שתתלי יתחבר לקודמו בחוט אדום.' : count === 1 ? 'מוצג אחד על הקיר. החוט מתחיל.' : `${count} מוצגים על הקירות.`}</p>
+        <p class="sub">${count === 0 ? 'הקירות עדיין ריקים. כל מוצג שתתלי יתחבר לקודמו בחוט אדום.' : count === 1 ? 'מוצג אחד על הקיר. מכאן החוט מתחיל.' : `${count} מוצגים על הקירות.`}</p>
       </section>
       <div class="row between" style="margin-bottom:14px">
         <a class="btn secondary" href="#/thread">${ico('thread')} החוט האדום</a>
@@ -653,7 +653,7 @@
       }).join('')}</div>`;
     view.querySelectorAll('button.env.sealed').forEach((b) => b.addEventListener('click', () => {
       const e = C.envelopes.find((x) => x.id === b.dataset.e);
-      toast(`חתומה עדיין. נפתחת ${esc(L.countdown(now(), e.openAt))}${e.where ? ', ' + esc(e.where) : ''}.`);
+      toast(`עדיין חתומה. נפתחת ${esc(L.countdown(now(), e.openAt))}${e.where ? ', ' + esc(e.where) : ''}.`);
     }));
   }
 
@@ -812,7 +812,7 @@
   function renderCredits() {
     view.innerHTML = `
       ${backLink('#/settings', 'הגדרות')}
-      <section class="hero"><p class="date">${CREDITS.length} תצלומים</p><h1>תצלומים ורשיונות</h1><p class="sub">התמונות של המקומות באפליקציה מגיעות מוויקישיתוף, ברשיונות חופשיים. התמונות שלך נשארות שלך.</p></section>
+      <section class="hero"><p class="date">${CREDITS.length} תצלומים</p><h1>תצלומים ורישיונות</h1><p class="sub">התמונות של המקומות באפליקציה מגיעות מוויקישיתוף, ברשיונות חופשיים. התמונות שלך נשארות שלך.</p></section>
       <div class="credits-list">${CREDITS.map((c) => `<div class="row" style="display:flex;gap:12px;align-items:center"><span class="print photo-fx"><img src="img/${esc(c.id)}.jpg" alt="" loading="lazy"></span><span><strong>${esc(c.title)}</strong><br>${esc(c.artist || 'ויקישיתוף')} · <a href="${esc(c.page)}" target="_blank" rel="noopener">${esc(c.license)}</a></span></div>`).join('')}</div>`;
   }
 
@@ -914,7 +914,7 @@
             <label class="toggle"><span>לפתוח את כל האולמות והמעטפות עכשיו<br><span class="hint">בלי לחכות לתאריכים. טוב לבדיקה, מקלקל את ההפתעה.</span></span><input type="checkbox" id="openAll" ${p.settings.openAll ? 'checked' : ''}></label>
             <div class="field"><label for="previewDate">להציג את האפליקציה כאילו עכשיו:</label>
               <div class="row"><input class="input" type="datetime-local" id="previewDate" value="${nowOverride ? esc(toLocalInput(nowOverride)) : ''}" style="flex:1"><button class="btn secondary" id="previewGo">להציג</button>${nowOverride ? '<button class="btn ghost" id="previewOff">לבטל</button>' : ''}</div>
-              <p class="hint">${nowOverride ? `כרגע מוצג כאילו עכשיו ${esc(L.hebrewDate(nowOverride))}, ${esc(nowOverride.getHours().toString().padStart(2, '0'))}:${esc(nowOverride.getMinutes().toString().padStart(2, '0'))}. תקף ללשונית הזאת בלבד.` : 'להצצה לאולם של יום אחר. תקף ללשונית הזאת בלבד.'}</p>
+              <p class="hint">${nowOverride ? `כרגע האפליקציה מציגה את ${esc(L.hebrewDate(nowOverride))}, ${esc(nowOverride.getHours().toString().padStart(2, '0'))}:${esc(nowOverride.getMinutes().toString().padStart(2, '0'))}. תקף ללשונית הזאת בלבד.` : 'כדי להציץ באולם של יום אחר. תקף רק בלשונית הזאת.'}</p>
             </div>
           </div>
         </section>
@@ -927,7 +927,7 @@
             <button class="btn ghost danger" id="reset">למחוק את המוזיאון הזה</button>
           </div>
         </section>
-        <p class="hint">אוצרת ${esc(VERSION)} · הכל נשמר בטלפון בלבד, בלי שרת. <a href="#/credits">תצלומים ורשיונות</a></p>
+        <p class="hint">אוצרת ${esc(VERSION)} · הכל נשמר בטלפון בלבד, בלי שרת. <a href="#/credits">תצלומים ורישיונות</a></p>
       </div>`;
     let emblem = p.emblem;
     view.querySelector('#sEmblems').addEventListener('click', (e) => { const b = e.target.closest('button'); if (!b) return; emblem = b.dataset.e; view.querySelectorAll('#sEmblems button').forEach((x) => x.setAttribute('aria-pressed', x === b)); });
@@ -936,7 +936,7 @@
     view.querySelectorAll('[data-switch]').forEach((b) => b.addEventListener('click', () => { state.activeProfile = b.dataset.switch; save(); render(); }));
     view.querySelector('#addProfile').addEventListener('click', () => { state.activeProfile = null; save(); go('#/'); render(); });
     view.querySelector('#theme').addEventListener('change', (e) => { state.theme = e.target.value; state.themeBase = e.target.value === 'sun' ? (state.themeBase || 'auto') : e.target.value; save(); applyTheme(); render(); });
-    view.querySelector('#openAll').addEventListener('change', (e) => { p.settings.openAll = e.target.checked; save(); toast(e.target.checked ? 'הכל פתוח.' : 'חזרנו לתאריכים.'); });
+    view.querySelector('#openAll').addEventListener('change', (e) => { p.settings.openAll = e.target.checked; save(); toast(e.target.checked ? 'הכל פתוח.' : 'חזרנו ללוח התאריכים.'); });
     view.querySelector('#previewGo').addEventListener('click', () => {
       const v = view.querySelector('#previewDate').value; if (!v) return;
       const d = L.parseLocal(v.replace('T', 'T').slice(0, 16)); if (!d) return;
